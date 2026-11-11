@@ -1,0 +1,10 @@
+# Fins de linha LF em todos os ficheiros de texto
+* text=auto eol=lf
+
+# Scripts do Windows mantem CRLF
+*.bat text eol=crlf
+
+# Ficheiros binarios
+*.png binary
+*.jpg binary
+*.jar binary
