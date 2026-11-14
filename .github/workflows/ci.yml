@@ -1,0 +1,92 @@
+# Nome do workflow, como aparece no separador Actions e nas verificações dos Pull Requests
+name: CI
+
+# Eventos que iniciam a pipeline
+on:
+  # Qualquer push, em qualquer branch
+  push:
+  # Pull Requests...
+  pull_request:
+    # ...cujo destino é a branch master
+    branches: [master]
+
+# Permissões do token usado pela pipeline
+permissions:
+  # Só pode ler o código do repositório; não pode escrever nada
+  contents: read
+
+# Controlo de execuções simultâneas
+concurrency:
+  # Agrupa as execuções pela branch (ou Pull Request)
+  group: ci-${{ github.ref }}
+  # Um push novo na mesma branch cancela a execução anterior, que ficou desatualizada
+  cancel-in-progress: true
+
+# Trabalhos da pipeline
+jobs:
+  # Identificador do trabalho do frontend mobile
+  frontend-mobile:
+    # Nome da verificação, usado como verificação obrigatória na proteção da master
+    name: frontend-mobile
+    # Máquina virtual Linux limpa, fornecida pelo GitHub
+    runs-on: ubuntu-latest
+
+    # Passos, executados por ordem; se um falhar, os seguintes não correm e a pipeline falha
+    steps:
+      # Descarrega o código do commit a verificar
+      - uses: actions/checkout@v4
+
+      # Instala o Java, de que o Gradle do Android precisa para compilar a aplicação
+      - uses: actions/setup-java@v4
+        # Opções da instalação
+        with:
+          # Distribuição do Java (Eclipse Temurin)
+          distribution: temurin
+          # Java 17, a versão exigida em android/app/build.gradle.kts
+          java-version: "17"
+
+      # Instala o Flutter
+      - uses: subosito/flutter-action@v2
+        # Opções da instalação
+        with:
+          # Canal estável do Flutter
+          channel: stable
+          # Versão fixa, a mesma registada em .metadata e usada pelo grupo, para a pipeline não mudar sozinha
+          flutter-version: 3.50.0
+          # Guarda a cache do Flutter e dos pacotes para acelerar as execuções seguintes
+          cache: true
+
+      # Nome do passo
+      - name: Instalar dependências
+        # Instala os pacotes do pubspec.lock
+        run: flutter pub get
+
+      # Nome do passo (quality gate QG-05)
+      - name: QG-05 Formatação
+        # dart format: não altera ficheiros, mas falha se algum precisar de ser formatado
+        run: dart format --output=none --set-exit-if-changed .
+
+      # Nome do passo (quality gate QG-05)
+      - name: QG-05 Análise estática
+        # flutter analyze: falha com erros, avisos ou infos das regras do flutter_lints (analysis_options.yaml)
+        run: flutter analyze
+
+      # Nome do passo (quality gate QG-01)
+      - name: QG-01 Construção
+        # Compila a aplicação Android em modo debug
+        run: flutter build apk --debug
+
+      # Nome do passo
+      - name: Guardar o APK de debug
+        # Corre sempre, mesmo que um passo anterior tenha falhado
+        if: always()
+        # Guarda ficheiros da execução como artefacto descarregável (evidência)
+        uses: actions/upload-artifact@v4
+        # Opções do artefacto
+        with:
+          # Nome do artefacto no separador Actions
+          name: evidencias-frontend-mobile
+          # Ficheiro guardado: o APK de debug
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          # Se a construção falhou e não há APK, mostra só um aviso em vez de falhar
+          if-no-files-found: warn
