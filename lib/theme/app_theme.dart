@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
-/// Cores do Protótipo de alta fidelidade v02.
-abstract final class AppColors {
+// Só o tema usa estas cores; os widgets leem-nas de Theme.of(context)
+abstract final class _AppColors {
   static const primary = Color(0xFF0F6B57);
   static const primarySoft = Color(0xFFEAF1EE);
   static const primarySoftStrong = Color(0xFFD6ECE5);
@@ -13,11 +13,6 @@ abstract final class AppColors {
   static const textSecondary = Color(0xFF2F3C37);
   static const textMuted = Color(0xFF55625D);
   static const danger = Color(0xFFA8261C);
-  static const dangerBackground = Color(0xFFFFF8F7);
-  static const warning = Color(0xFF7A4300);
-  static const warningBackground = Color(0xFFF7E3CC);
-  static const info = Color(0xFF3B3F8F);
-  static const infoBackground = Color(0xFFE3E4F7);
 }
 
 /// Espaçamentos usados entre e dentro dos componentes.
@@ -36,75 +31,75 @@ abstract final class AppRadius {
   static const card = 18.0;
 }
 
-/// Tema Material 3 da aplicação, com as cores e as formas do protótipo.
+/// Tema Material 3 da aplicação, com as cores e as formas da linha gráfica.
 final appTheme = ThemeData(
   useMaterial3: true,
   colorScheme: ColorScheme.fromSeed(
-    seedColor: AppColors.primary,
-    primary: AppColors.primary,
+    seedColor: _AppColors.primary,
+    primary: _AppColors.primary,
     onPrimary: Colors.white,
-    primaryContainer: AppColors.primarySoftStrong,
-    onPrimaryContainer: AppColors.primary,
-    secondaryContainer: AppColors.primarySoft,
-    onSecondaryContainer: AppColors.primary,
-    surface: AppColors.surface,
-    onSurface: AppColors.text,
-    onSurfaceVariant: AppColors.textMuted,
-    outline: AppColors.borderStrong,
-    outlineVariant: AppColors.border,
-    error: AppColors.danger,
+    primaryContainer: _AppColors.primarySoftStrong,
+    onPrimaryContainer: _AppColors.primary,
+    secondaryContainer: _AppColors.primarySoft,
+    onSecondaryContainer: _AppColors.primary,
+    surface: _AppColors.surface,
+    onSurface: _AppColors.text,
+    onSurfaceVariant: _AppColors.textMuted,
+    outline: _AppColors.borderStrong,
+    outlineVariant: _AppColors.border,
+    error: _AppColors.danger,
   ),
-  scaffoldBackgroundColor: AppColors.background,
+  scaffoldBackgroundColor: _AppColors.background,
   appBarTheme: const AppBarTheme(
-    backgroundColor: AppColors.surface,
-    foregroundColor: AppColors.text,
+    backgroundColor: _AppColors.surface,
+    foregroundColor: _AppColors.text,
     surfaceTintColor: Colors.transparent,
     elevation: 0,
     scrolledUnderElevation: 0,
     titleTextStyle: TextStyle(
-      color: AppColors.text,
+      color: _AppColors.text,
       fontSize: 20,
       fontWeight: FontWeight.w700,
     ),
   ),
   textTheme: const TextTheme(
     headlineSmall: TextStyle(
-      color: AppColors.text,
+      color: _AppColors.text,
       fontSize: 26,
       fontWeight: FontWeight.w700,
     ),
     titleMedium: TextStyle(
-      color: AppColors.text,
+      color: _AppColors.text,
       fontSize: 17,
       fontWeight: FontWeight.w700,
     ),
-    bodyMedium: TextStyle(color: AppColors.textSecondary, fontSize: 15),
-    bodySmall: TextStyle(color: AppColors.textMuted, fontSize: 13),
+    bodyMedium: TextStyle(color: _AppColors.textSecondary, fontSize: 15),
+    bodySmall: TextStyle(color: _AppColors.textMuted, fontSize: 13),
   ),
   cardTheme: const CardThemeData(
-    color: AppColors.surface,
+    color: _AppColors.surface,
     elevation: 0,
     margin: EdgeInsets.zero,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(AppRadius.card)),
-      side: BorderSide(color: AppColors.border),
+      side: BorderSide(color: _AppColors.border),
     ),
   ),
   inputDecorationTheme: const InputDecorationTheme(
     filled: true,
-    fillColor: AppColors.surface,
+    fillColor: _AppColors.surface,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(AppRadius.field)),
-      borderSide: BorderSide(color: AppColors.borderStrong),
+      borderSide: BorderSide(color: _AppColors.borderStrong),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(AppRadius.field)),
-      borderSide: BorderSide(color: AppColors.borderStrong),
+      borderSide: BorderSide(color: _AppColors.borderStrong),
     ),
   ),
   filledButtonTheme: FilledButtonThemeData(
     style: FilledButton.styleFrom(
-      backgroundColor: AppColors.primary,
+      backgroundColor: _AppColors.primary,
       foregroundColor: Colors.white,
       minimumSize: const Size.fromHeight(52),
       textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
@@ -115,9 +110,9 @@ final appTheme = ThemeData(
   ),
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      foregroundColor: AppColors.primary,
+      foregroundColor: _AppColors.primary,
       minimumSize: const Size.fromHeight(52),
-      side: const BorderSide(color: AppColors.primary),
+      side: const BorderSide(color: _AppColors.primary),
       textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(AppRadius.button)),
@@ -126,13 +121,13 @@ final appTheme = ThemeData(
   ),
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: AppColors.primary,
+      foregroundColor: _AppColors.primary,
       textStyle: const TextStyle(fontWeight: FontWeight.w700),
     ),
   ),
   navigationBarTheme: const NavigationBarThemeData(
-    backgroundColor: AppColors.surface,
-    indicatorColor: AppColors.primarySoftStrong,
+    backgroundColor: _AppColors.surface,
+    indicatorColor: _AppColors.primarySoftStrong,
     surfaceTintColor: Colors.transparent,
   ),
 );

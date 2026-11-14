@@ -8,10 +8,11 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -19,10 +20,10 @@ class WelcomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              const Icon(
+              Icon(
                 Icons.location_on_outlined,
                 size: 48,
-                color: AppColors.primary,
+                color: theme.colorScheme.primary,
               ),
               const SizedBox(height: AppSpacing.md),
               Text(

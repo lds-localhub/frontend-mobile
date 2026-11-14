@@ -18,7 +18,6 @@ class LocalHubApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'LocalHub',
-      debugShowCheckedModeBanner: false,
       theme: appTheme,
       routerConfig: router,
       locale: const Locale('pt', 'PT'),
