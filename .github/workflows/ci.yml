@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend-mobile:
+    name: frontend-mobile
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # O Gradle do Android exige o Java 17 (android/app/build.gradle.kts).
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Versão fixa, coerente com a revisão registada em .metadata e com o SDK do pubspec.yaml.
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.50.0
+          cache: true
+
+      - name: Instalar dependências
+        run: flutter pub get
+
+      - name: QG-05 Formatação
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: QG-05 Análise estática
+        run: flutter analyze
+
+      - name: QG-01 Construção
+        run: flutter build apk --debug
+
+      - name: Guardar o APK de debug
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidencias-frontend-mobile
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: warn
