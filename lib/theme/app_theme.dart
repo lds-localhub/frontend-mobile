@@ -1,5 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 
+// Tipos de letra declarados no pubspec.yaml: Figtree no texto e Bricolage Grotesque nos títulos
+const _bodyFont = 'Figtree';
+const _headingFont = 'Bricolage Grotesque';
+
 // Só o tema usa estas cores; os widgets leem-nas de Theme.of(context)
 abstract final class _AppColors {
   static const primary = Color(0xFF0F6B57);
@@ -34,6 +38,7 @@ abstract final class AppRadius {
 /// Tema Material 3 da aplicação, com as cores e as formas da linha gráfica.
 final appTheme = ThemeData(
   useMaterial3: true,
+  fontFamily: _bodyFont,
   colorScheme: ColorScheme.fromSeed(
     seedColor: _AppColors.primary,
     primary: _AppColors.primary,
@@ -57,6 +62,7 @@ final appTheme = ThemeData(
     elevation: 0,
     scrolledUnderElevation: 0,
     titleTextStyle: TextStyle(
+      fontFamily: _headingFont,
       color: _AppColors.text,
       fontSize: 20,
       fontWeight: FontWeight.w700,
@@ -64,11 +70,13 @@ final appTheme = ThemeData(
   ),
   textTheme: const TextTheme(
     headlineSmall: TextStyle(
+      fontFamily: _headingFont,
       color: _AppColors.text,
       fontSize: 26,
       fontWeight: FontWeight.w700,
     ),
     titleMedium: TextStyle(
+      fontFamily: _headingFont,
       color: _AppColors.text,
       fontSize: 17,
       fontWeight: FontWeight.w700,

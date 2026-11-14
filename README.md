@@ -68,4 +68,5 @@ lib/
     client/          ecrãs do Cliente
     provider/        ecrãs do Prestador de Serviços
   utils/             funções sem widgets
+assets/fonts/        tipos de letra Figtree e Bricolage Grotesque (licença SIL OFL 1.1, ficheiros OFL-*.txt)
 ```
