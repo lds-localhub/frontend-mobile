@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- HTTP sem TLS só para o backend: 10.0.2.2 é o localhost do computador visto do emulador Android.
+     Para usar o backend noutro endereço (ex.: telemóvel real na mesma rede), acrescentar aqui o IP. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>
