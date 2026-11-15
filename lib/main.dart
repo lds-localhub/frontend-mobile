@@ -4,7 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:localhub/router/router.dart';
 import 'package:localhub/theme/app_theme.dart';
 
-Future<void> main() async {
+Future<void>   main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const LocalHubApp());
