@@ -73,6 +73,11 @@ jobs:
         # flutter analyze: falha com erros, avisos ou infos das regras do flutter_lints (analysis_options.yaml)
         run: flutter analyze
 
+      # Nome do passo (testes unitários opcionais, sem quality gate próprio; RI v03, secção 10.5)
+      - name: Testes unitários
+        # flutter test: corre os testes de test/ (sem emulador) e falha se algum teste falhar
+        run: flutter test
+
       # Nome do passo (quality gate QG-01)
       - name: QG-01 Construção
         # Compila a aplicação Android em modo debug
