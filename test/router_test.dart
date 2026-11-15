@@ -15,6 +15,12 @@ void main() {
     expect(guard('/pesquisa', hasSession: false), isNull);
   });
 
+  test('as rotas que só começam pelas mesmas letras não são protegidas', () {
+    expect(guard('/contactos', hasSession: false), isNull);
+    expect(guard('/clientes', hasSession: false), isNull);
+    expect(guard('/prestadores', hasSession: false), isNull);
+  });
+
   test('com sessão, as rotas com sessão abrem', () {
     expect(guard('/conta/palavra-passe', hasSession: true), isNull);
   });

@@ -12,7 +12,10 @@ const _protectedPrefixes = ['/cliente', '/prestador', '/conta'];
 /// Decide para onde vai a navegação: as rotas com sessão levam às boas-vindas
 /// enquanto não houver sessão. A segurança é sempre do backend.
 String? guard(String location, {required bool hasSession}) {
-  final isProtected = _protectedPrefixes.any(location.startsWith);
+  // Compara o segmento completo: /conta e /conta/... são protegidas, /contactos não
+  final isProtected = _protectedPrefixes.any(
+    (prefix) => location == prefix || location.startsWith('$prefix/'),
+  );
   if (isProtected && !hasSession) {
     return '/boas-vindas';
   }
