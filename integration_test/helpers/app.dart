@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:localhub/api/session.dart';
 import 'package:localhub/main.dart';
@@ -26,4 +27,31 @@ Future<TestApp> pumpApp(WidgetTester tester) async {
   );
   await tester.pumpAndSettle();
   return TestApp(container);
+}
+
+/// Escreve [text] no campo do formulário com a chave [field].
+Future<void> fillField(WidgetTester tester, String field, String text) async {
+  await tester.enterText(find.byKey(ValueKey(field)), text);
+  await tester.pump();
+}
+
+/// Toca no botão ou ligação com o texto [label], depois de o tornar visível.
+Future<void> tapText(WidgetTester tester, String label) async {
+  // Com um título igual ao botão (ex.: «Criar conta» no registo), o botão vem depois
+  final finder = find.text(label).last;
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
+
+/// Inicia sessão pelo ecrã de início de sessão (M03), já aberto.
+Future<void> loginThroughUi(
+  WidgetTester tester,
+  String email,
+  String password,
+) async {
+  await fillField(tester, 'email', email);
+  await fillField(tester, 'password', password);
+  await tapText(tester, 'Entrar');
 }

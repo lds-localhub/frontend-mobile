@@ -107,3 +107,32 @@ Future<TestAccount> registerAndLogin(String role, {String? prefix}) async {
     user: session.user,
   );
 }
+
+/// Administrador dos dados de referência do backend (só de leitura).
+const String adminEmail = 'ana.almeida@localhub.test';
+const String adminPassword = 'Admin2026';
+
+/// E06: desativa uma conta, com o Administrador a iniciar sessão como
+/// aplicação web (com `MOBILE`, o backend recusa o Administrador).
+Future<void> deactivateAccount(int userId) async {
+  final admin = await login(adminEmail, adminPassword, client: 'WEB');
+  final response = await http.post(
+    apiUri('/api/accounts/$userId/deactivate'),
+    headers: jsonHeaders(token: admin.token),
+  );
+  failIfNot(response, 200);
+}
+
+/// E02: indica se o backend aceita estas credenciais na aplicação mobile.
+Future<bool> canLogin(String email, String password) async {
+  final response = await http.post(
+    apiUri('/api/auth/login'),
+    headers: jsonHeaders(),
+    body: jsonEncode({
+      'email': email,
+      'password': password,
+      'client': 'MOBILE',
+    }),
+  );
+  return response.statusCode == 200;
+}
