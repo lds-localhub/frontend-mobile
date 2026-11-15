@@ -45,6 +45,61 @@ flutter run
 | `flutter test integration_test` | Testes de sistema, com um emulador ou telemóvel ligado (`integration_test/`). |
 | `flutter build apk --debug` | Gera o APK de debug em `build/app/outputs/flutter-apk/`. |
 
+## Testes de sistema
+
+Os testes de sistema (`integration_test/`) correm num **emulador Android 16 (API 36) com imagem Google APIs**
+contra o sistema real: aplicação, backend e PostgreSQL 18. A única simulação é a do geocodificador externo
+(Nominatim), substituído por um stub local (`tool/nominatim_stub.dart`) com coordenadas fixas.
+
+- **Dados:** a base de dados é criada e reposta com os scripts de referência do backend
+  (`database/repor-base-dados.sql`, RNF-19), cujos dados são só de leitura para os testes. Cada teste cria os
+  restantes dados pela API documentada, com os helpers de `integration_test/support/api.dart` e e-mails
+  únicos. Os testes não acedem diretamente à base de dados.
+- **Teste de exemplo:** `integration_test/exemplo_backend_test.dart`.
+
+### Execução local
+
+Usar uma base de dados própria para os testes (nunca a `localhub_dev` nem a `localhub_test`). A partir da pasta
+do repositório `backend`, na versão indicada em `BACKEND_REF` no `.github/workflows/ci.yml`:
+
+```bash
+# 1. Criar ou repor a base de dados dos testes
+psql -U postgres -d postgres -v dbname=localhub_e2e -f database/repor-base-dados.sql
+
+# 2. Arrancar o geocodificador simulado (a partir da pasta do frontend-mobile)
+dart run tool/nominatim_stub.dart
+
+# 3. Arrancar o backend apontado para a base dos testes e para o stub (a partir da pasta do backend)
+ConnectionStrings__LocalHub="Host=localhost;Port=5432;Database=localhub_e2e;Username=localhub;Password=<palavra-passe>" \
+Nominatim__BaseUrl="http://localhost:8089/" \
+dotnet run --project src/LocalHub.Api
+
+# 4. Com o emulador aberto, correr os testes (a partir da pasta do frontend-mobile)
+flutter test integration_test
+```
+
+Os testes que usam as contas da base de referência recebem as palavras-passe com
+`--dart-define=E2E_ADMIN_PASSWORD=...` (administrador) e `--dart-define=E2E_DEMO_PASSWORD=...` (cliente e
+prestador), indicadas no README dos scripts da base de dados do backend.
+
+### Pipeline (QG-07)
+
+O job `frontend-mobile` do `.github/workflows/ci.yml`, depois da construção e da análise estática, arranca o
+PostgreSQL 18, cria a base com os scripts de referência, arranca o stub e o backend na versão `BACKEND_REF`,
+cria o emulador Android 16 (API 36, Google APIs) e corre o `integration_test`
+(`.github/scripts/testes-sistema-mobile.sh`). Um teste falhado faz a pipeline falhar e bloqueia o merge. A
+saída dos testes (texto e JSON), a identificação do dispositivo, o `logcat` e os registos do backend e do stub
+ficam no artefacto `registos-testes-sistema-frontend-mobile`.
+
+Segredos do repositório (Settings → Secrets and variables → Actions), nunca guardados no código:
+
+| Segredo | Uso |
+| --- | --- |
+| `E2E_DB_PASSWORD` | Palavra-passe do PostgreSQL da pipeline e do utilizador `localhub`. |
+| `E2E_JWT_SIGNING_KEY` | Chave de assinatura dos tokens do backend (mínimo de 32 caracteres). |
+| `E2E_ADMIN_PASSWORD` | Palavra-passe do administrador da base de referência. |
+| `E2E_DEMO_PASSWORD` | Palavra-passe do cliente e do prestador da base de referência. |
+
 ## Organização das pastas
 
 A estrutura segue o Modelo de Classes do frontend mobile v03:
