@@ -10,6 +10,9 @@ import 'package:localhub/router/router.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  // O router é global e partilhado entre testes: cada teste começa nas boas-vindas
+  setUp(() => router.go('/boas-vindas'));
+
   testWidgets('a aplicação abre nas boas-vindas', (tester) async {
     await tester.pumpWidget(const LocalHubApp());
     await tester.pumpAndSettle();
