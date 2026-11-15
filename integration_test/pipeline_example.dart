@@ -19,7 +19,9 @@ void pipelineExampleTests() {
         'criar um Prestador com perfil pela API (morada convertida pelo stub)',
       );
       final provider = await createProviderWithProfile(addressKey: 'maia');
-      expect(provider.account.user['role'], 'PROVIDER');
+      // ERRO INTENCIONAL (I093): o papel esperado está errado, para provar que a
+      // pipeline bloqueia o merge
+      expect(provider.account.user['role'], 'CLIENT');
       expect(provider.professionalProfileId, greaterThan(0));
 
       debugPrint('abrir a aplicação nas boas-vindas');
