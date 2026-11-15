@@ -1,41 +1,18 @@
 // Testes de sistema automáticos (QG-07 do regulamento interno).
-// Executar com um emulador ou dispositivo ligado:
-//   flutter test integration_test
+//
+// Entrada única: importa todos os testes, para a aplicação ser compilada e
+// instalada no emulador uma só vez. Executar com um emulador ligado e o
+// backend e o stub do Nominatim a correr:
+//   flutter test integration_test/app_test.dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'package:localhub/main.dart';
-import 'package:localhub/router/router.dart';
+import 'navigation.dart';
+import 'pipeline_example.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  // O router é global e partilhado entre testes: cada teste começa nas boas-vindas
-  setUp(() => router.go('/boas-vindas'));
-
-  testWidgets('a aplicação abre nas boas-vindas', (tester) async {
-    await tester.pumpWidget(const LocalHubApp());
-    await tester.pumpAndSettle();
-
-    expect(find.text('LocalHub'), findsOneWidget);
-    expect(find.text('Pesquisar Prestadores'), findsOneWidget);
-  });
-
-  testWidgets('uma rota com sessão sem sessão volta às boas-vindas', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const LocalHubApp());
-    router.go('/conta/palavra-passe');
-    await tester.pumpAndSettle();
-
-    expect(find.text('Serviços para o lar, perto de si'), findsOneWidget);
-  });
-
-  testWidgets('uma rota inexistente mostra a página de erro', (tester) async {
-    await tester.pumpWidget(const LocalHubApp());
-    router.go('/rota-que-nao-existe');
-    await tester.pumpAndSettle();
-
-    expect(find.text('Página não encontrada'), findsOneWidget);
-  });
+  group('Navegação', navigationTests);
+  group('Exemplo da pipeline', pipelineExampleTests);
 }

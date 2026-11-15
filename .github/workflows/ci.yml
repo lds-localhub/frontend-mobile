@@ -3,10 +3,8 @@ name: CI
 
 # Eventos que iniciam a pipeline
 on:
-  # Push para a branch master (depois do merge de um Pull Request)
+  # Todos os pushes, em qualquer branch (regulamento interno §4: execução automática para todos os pushes)
   push:
-    # Só na master: nos Pull Requests a pipeline já corre pelo evento pull_request
-    branches: [master]
   # Pull Requests...
   pull_request:
     # ...cujo destino é a branch master
@@ -73,11 +71,6 @@ jobs:
         # flutter analyze: falha com erros, avisos ou infos das regras do flutter_lints (analysis_options.yaml)
         run: flutter analyze
 
-      # Nome do passo (testes unitários opcionais, sem quality gate próprio; RI v03, secção 10.5)
-      - name: Testes unitários
-        # flutter test: corre os testes de test/ (sem emulador) e falha se algum teste falhar
-        run: flutter test
-
       # Nome do passo (quality gate QG-01)
       - name: QG-01 Construção
         # Compila a aplicação Android em modo debug
@@ -96,4 +89,229 @@ jobs:
           # Ficheiro guardado: o APK de debug
           path: build/app/outputs/flutter-apk/app-debug.apk
           # Se a construção falhou e não há APK, mostra só um aviso em vez de falhar
+          if-no-files-found: warn
+
+  # Identificador do trabalho dos testes de sistema (I093, quality gate QG-07)
+  testes-sistema-mobile:
+    # Nome da verificação, usado como verificação obrigatória na proteção da master
+    name: testes-sistema-mobile
+    # Máquina virtual Linux limpa, fornecida pelo GitHub (com KVM para o emulador)
+    runs-on: ubuntu-latest
+    # Limite de tempo: um emulador pendurado não prende o trabalho durante horas
+    timeout-minutes: 45
+
+    # Serviços que acompanham o trabalho
+    services:
+      # PostgreSQL 18, a mesma versão do backend
+      postgres:
+        # Imagem oficial do PostgreSQL 18
+        image: postgres:18
+        # Configuração do servidor
+        env:
+          # Superutilizador, usado só para correr o script de criação da base de dados
+          POSTGRES_USER: postgres
+          # Palavra-passe guardada nos GitHub Secrets (regulamento interno §13.2)
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+        # Porta do servidor acessível a partir do trabalho
+        ports:
+          - 5432:5432
+        # O trabalho só começa quando o servidor aceita ligações
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Variáveis comuns a todos os passos
+    env:
+      # Palavra-passe usada pelo psql (superutilizador postgres e utilizador localhub)
+      PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+      # Tag do backend contra a qual os testes correm (versão em vigor)
+      BACKEND_TAG: v1.1.0
+      # Emulador Android 16 com a imagem Google APIs (RNF-11)
+      EMULATOR_API_LEVEL: 36
+      EMULATOR_TARGET: google_apis
+      EMULATOR_ARCH: x86_64
+
+    # Passos, executados por ordem; se um falhar, os seguintes não correm e a pipeline falha
+    steps:
+      # Descarrega o código do commit a verificar
+      - uses: actions/checkout@v4
+
+      # Descarrega o backend, só para leitura, na tag indicada
+      - name: Obter o backend ${{ env.BACKEND_TAG }}
+        # Ação oficial de checkout
+        uses: actions/checkout@v4
+        # Opções do checkout
+        with:
+          # Repositório público do backend
+          repository: lds-localhub/backend
+          # Versão do backend usada nos testes
+          ref: ${{ env.BACKEND_TAG }}
+          # Pasta temporária no runner; não faz parte do repositório do frontend
+          path: backend
+
+      # Nome do passo
+      - name: Criar e repor a base de dados de teste
+        # Cria o utilizador localhub e corre o script de referência do backend (RNF-19)
+        run: |
+          psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -c "CREATE ROLE localhub WITH LOGIN PASSWORD '$PGPASSWORD';"
+          psql -h localhost -U postgres -d postgres -v dbname=localhub_e2e \
+            -f backend/database/repor-base-dados.sql
+
+      # Instala o .NET com a versão definida pelo backend
+      - uses: actions/setup-dotnet@v4
+        # Opções da instalação
+        with:
+          # Versão lida do global.json do backend
+          global-json-file: backend/global.json
+
+      # Nome do passo
+      - name: Compilar o backend
+        # Compila a API em Release
+        run: dotnet build backend/src/LocalHub.Api --configuration Release
+
+      # Nome do passo
+      - name: Arrancar o stub do Nominatim
+        # Geocodificador simulado em segundo plano; a saída fica num ficheiro para as evidências
+        run: |
+          mkdir -p logs
+          nohup node integration_test/stubs/nominatim-stub.mjs > logs/nominatim-stub.log 2>&1 &
+          pid=$!
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8089/status && exit 0
+            # Se o processo já terminou, não vale a pena esperar mais
+            kill -0 "$pid" 2>/dev/null || break
+            sleep 1
+          done
+          echo "O stub do Nominatim não arrancou" && cat logs/nominatim-stub.log && exit 1
+
+      # Nome do passo
+      - name: Arrancar o backend
+        # Configuração só por variáveis de ambiente; o backend não é alterado
+        env:
+          # Base de dados de teste criada no passo anterior
+          ConnectionStrings__LocalHub: Host=localhost;Port=5432;Database=localhub_e2e;Username=localhub;Password=${{ secrets.TEST_DB_PASSWORD }}
+          # Chave de assinatura dos tokens (mínimo 32 caracteres)
+          Jwt__SigningKey: ${{ secrets.JWT_SIGNING_KEY }}
+          # Palavra-passe exigida pelo seeder em Development
+          Seed__DefaultPassword: ${{ secrets.SEED_DEFAULT_PASSWORD }}
+          # Geocodificador simulado em vez do Nominatim público
+          Nominatim__BaseUrl: http://localhost:8089/
+        # Arranca em segundo plano (perfil http: porta 5041, vista pelo emulador em 10.0.2.2) e espera pelo /api/health
+        run: |
+          nohup dotnet run --project backend/src/LocalHub.Api --configuration Release \
+            --no-build --launch-profile http > logs/backend.log 2>&1 &
+          pid=$!
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:5041/api/health && exit 0
+            # Se o processo já terminou (ex.: configuração inválida), não vale a pena esperar mais
+            kill -0 "$pid" 2>/dev/null || break
+            sleep 2
+          done
+          echo "O backend não arrancou" && cat logs/backend.log && exit 1
+
+      # Instala o Java, de que o Gradle do Android precisa para compilar a aplicação
+      - uses: actions/setup-java@v4
+        # Opções da instalação
+        with:
+          # Distribuição do Java (Eclipse Temurin)
+          distribution: temurin
+          # Java 17, a versão exigida em android/app/build.gradle.kts
+          java-version: "17"
+
+      # Instala o Flutter
+      - uses: subosito/flutter-action@v2
+        # Opções da instalação
+        with:
+          # Canal estável do Flutter
+          channel: stable
+          # Versão fixa, a mesma do trabalho frontend-mobile
+          flutter-version: 3.50.0
+          # Guarda a cache do Flutter e dos pacotes pub para acelerar as execuções seguintes
+          cache: true
+
+      # Guarda a cache do Gradle (dependências e wrapper) para acelerar a compilação Android
+      - uses: actions/cache@v4
+        # Opções da cache
+        with:
+          # Pastas do Gradle
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          # Chave: muda quando mudam os ficheiros de configuração do Gradle
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties') }}
+
+      # Nome do passo
+      - name: Instalar dependências
+        # Instala os pacotes do pubspec.lock
+        run: flutter pub get
+
+      # Nome do passo
+      - name: Ativar o KVM
+        # Aceleração por hardware do emulador (sem ela o emulador x86_64 é demasiado lento)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # Guarda a cache do emulador (AVD e snapshot) para arrancar mais depressa nas execuções seguintes
+      - uses: actions/cache@v4
+        # Identificador do passo, para saber se a cache existia
+        id: avd-cache
+        # Opções da cache
+        with:
+          # Pastas do AVD
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          # Chave: muda se mudar a versão, a imagem ou a arquitetura do emulador
+          key: avd-${{ env.EMULATOR_API_LEVEL }}-${{ env.EMULATOR_TARGET }}-${{ env.EMULATOR_ARCH }}
+
+      # Nome do passo
+      - name: Criar o emulador e o snapshot (só sem cache)
+        # Só corre quando ainda não há cache do AVD
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        # Ação que cria e arranca o emulador Android
+        uses: reactivecircus/android-emulator-runner@v2
+        # Opções do emulador
+        with:
+          api-level: ${{ env.EMULATOR_API_LEVEL }}
+          target: ${{ env.EMULATOR_TARGET }}
+          arch: ${{ env.EMULATOR_ARCH }}
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          # Só arranca e desliga, para gravar o snapshot na cache
+          script: echo "Snapshot do emulador criado"
+
+      # Nome do passo (quality gate QG-07)
+      - name: QG-07 Testes de sistema (integration_test)
+        # Arranca o emulador Android 16 (API 36, Google APIs) e corre os testes de sistema
+        uses: reactivecircus/android-emulator-runner@v2
+        # Opções do emulador
+        with:
+          api-level: ${{ env.EMULATOR_API_LEVEL }}
+          target: ${{ env.EMULATOR_TARGET }}
+          arch: ${{ env.EMULATOR_ARCH }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          # Posição do dispositivo, identificação do Android e testes, com a saída guardada em logs/
+          script: ./integration_test/ci/run-system-tests.sh
+
+      # Nome do passo
+      - name: Guardar os registos dos testes de sistema
+        # Corre sempre, mesmo que os testes tenham falhado
+        if: always()
+        # Guarda ficheiros da execução como artefacto descarregável (evidência)
+        uses: actions/upload-artifact@v4
+        # Opções do artefacto
+        with:
+          # Nome do artefacto no separador Actions
+          name: evidencias-testes-sistema-mobile
+          # Registos do integration_test, versão do Android e registos do backend e do stub
+          path: logs/
+          # Se não houver ficheiros (falha antes dos testes), mostra só um aviso
           if-no-files-found: warn
