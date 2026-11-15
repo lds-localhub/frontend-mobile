@@ -1,7 +1,7 @@
 # Análise estática do frontend mobile (regulamento interno, secções 10.3 e 10.4)
 #
 # - Convenção: Effective Dart + perfil recomendado do flutter_lints.
-# - Verificação: `flutter analyze` (erros e avisos bloqueiam a pipeline).
+# - Verificação: `flutter analyze` (erros, avisos e infos bloqueiam a pipeline).
 # - Formatação: `dart format --output=none --set-exit-if-changed .`
 
 include: package:flutter_lints/flutter.yaml
