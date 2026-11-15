@@ -1,15 +1,20 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'package:localhub/data/auth.dart';
+import 'package:localhub/router/router.dart';
 import 'package:localhub/theme/app_theme.dart';
 
-class NotFoundScreen extends StatelessWidget {
+/// Rota inexistente, com «Voltar ao início» (o início do papel ou, sem sessão,
+/// as boas-vindas).
+class NotFoundScreen extends ConsumerWidget {
   const NotFoundScreen({super.key});
 
-  void _handleHomePressed(BuildContext context) => context.go('/boas-vindas');
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final me = ref.watch(meProvider).value;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -25,7 +30,7 @@ class NotFoundScreen extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.lg),
               FilledButton(
-                onPressed: () => _handleHomePressed(context),
+                onPressed: () => context.go(homeOf(me)),
                 child: const Text('Voltar ao início'),
               ),
             ],

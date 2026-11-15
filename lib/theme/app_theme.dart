@@ -94,6 +94,8 @@ final appTheme = ThemeData(
     ),
   ),
   inputDecorationTheme: const InputDecorationTheme(
+    // O rótulo fica sempre por cima do campo, como no protótipo
+    floatingLabelBehavior: FloatingLabelBehavior.always,
     filled: true,
     fillColor: _AppColors.surface,
     border: OutlineInputBorder(
