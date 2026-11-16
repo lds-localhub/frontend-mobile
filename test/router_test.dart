@@ -21,12 +21,9 @@ void main() {
   );
   final noProfile = AsyncData<Me?>(user(Role.provider));
 
-  test('sem sessão, as rotas com sessão vão para as boas-vindas', () {
-    expect(guard(visitor, '/cliente/conta', hasToken: false), '/boas-vindas');
-    expect(
-      guard(visitor, '/conta/palavra-passe', hasToken: false),
-      '/boas-vindas',
-    );
+  test('sem sessão, as rotas com sessão vão para o início de sessão', () {
+    expect(guard(visitor, '/cliente/conta', hasToken: false), '/login');
+    expect(guard(visitor, '/conta/palavra-passe', hasToken: false), '/login');
     expect(guard(visitor, '/a-iniciar', hasToken: false), '/boas-vindas');
     expect(guard(visitor, '/contactos', hasToken: false), isNull);
   });

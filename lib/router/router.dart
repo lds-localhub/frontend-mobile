@@ -58,7 +58,9 @@ String? guard(
         location == _starting ||
         _protectedPrefixes.any((prefix) => _isUnder(location, prefix));
     if (isProtected) {
-      return expired ? '/login' : '/boas-vindas';
+      // Depois de terminar sessão, ou numa rota protegida sem sessão, vai para o
+      // início de sessão (RF-F001-04); o arranque sem sessão abre as boas-vindas
+      return location == _starting && !expired ? '/boas-vindas' : '/login';
     }
     return null;
   }

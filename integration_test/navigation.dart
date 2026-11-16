@@ -11,14 +11,17 @@ void navigationTests() {
     expect(find.text('Pesquisar Prestadores'), findsOneWidget);
   });
 
-  testWidgets('uma rota com sessão sem sessão volta às boas-vindas', (
+  testWidgets('uma rota com sessão sem sessão vai para o início de sessão', (
     tester,
   ) async {
     final app = await pumpApp(tester);
     app.router.go('/conta/palavra-passe');
     await tester.pumpAndSettle();
 
-    expect(find.text('Serviços para o lar, perto de si'), findsOneWidget);
+    expect(
+      find.text('Entre com o e-mail e a palavra-passe da sua conta.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('uma rota inexistente mostra a página de erro', (tester) async {
