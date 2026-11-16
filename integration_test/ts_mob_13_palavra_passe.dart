@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'helpers/accounts.dart';
 import 'helpers/app.dart';
@@ -25,7 +26,9 @@ void tsMob13Tests() {
       await waitForText(tester, 'Palavra-passe alterada.');
 
       // Voltar à Conta, terminar sessão e entrar com a nova palavra-passe
-      await tester.pageBack();
+      // Seta ‹ do M19 (o pageBack procura a dica em inglês, «Back», e a
+      // aplicação está em português)
+      await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
       await tapText(tester, 'Terminar sessão');
       await waitForLocation(tester, app, '/login');
