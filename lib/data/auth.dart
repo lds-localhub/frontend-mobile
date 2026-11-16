@@ -30,3 +30,33 @@ final meProvider = FutureProvider<Me?>((ref) async {
   final json = await api('/auth/me');
   return Me.fromJson(json! as Map<String, dynamic>);
 });
+
+/// Regista uma conta de Cliente ou de Prestador (E01); não inicia sessão.
+Future<void> register(RegisterInput body) async {
+  await api('/auth/register', method: 'POST', body: body.toJson());
+}
+
+/// Inicia sessão (E02); o router leva depois ao início do papel.
+Future<void> login(LoginInput body) async {
+  final json = await api('/auth/login', method: 'POST', body: body.toJson());
+  final result = LoginResult.fromJson(json! as Map<String, dynamic>);
+  await Session.instance.start(result.token);
+}
+
+/// Termina a sessão (E03) e apaga o token do dispositivo, mesmo que o pedido
+/// falhe.
+Future<void> logout() async {
+  try {
+    await api('/auth/logout', method: 'POST');
+  } catch (_) {
+    // Sem rede ou com a sessão já terminada no servidor, a sessão termina na mesma no telemóvel
+  } finally {
+    await Session.instance.end();
+  }
+}
+
+/// Altera a palavra-passe do utilizador autenticado (E40); a sessão atual
+/// mantém-se.
+Future<void> changePassword(ChangePasswordInput body) async {
+  await api('/users/me/password', method: 'PUT', body: body.toJson());
+}

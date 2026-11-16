@@ -107,3 +107,7 @@ Future<TestAccount> registerAndLogin(String role, {String? prefix}) async {
     user: session.user,
   );
 }
+
+/// Administrador dos dados de referência do backend (só de leitura).
+const String adminEmail = 'ana.almeida@localhub.test';
+const String adminPassword = 'Admin2026';

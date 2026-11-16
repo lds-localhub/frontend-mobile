@@ -43,4 +43,75 @@ class Me {
 
   /// Perfil profissional; `null` para Clientes e Prestadores sem perfil.
   final int? professionalProfileId;
+
+  /// Prestador que ainda não criou o perfil profissional.
+  bool get needsProfile =>
+      role == Role.provider && professionalProfileId == null;
+}
+
+/// Resposta do início de sessão (E02).
+class LoginResult {
+  const LoginResult({required this.token, required this.user});
+
+  factory LoginResult.fromJson(Map<String, dynamic> json) => LoginResult(
+    token: json['token'] as String,
+    user: Me.fromJson(json['user'] as Map<String, dynamic>),
+  );
+
+  final String token;
+  final Me user;
+}
+
+/// Corpo do registo de conta (E01).
+class RegisterInput {
+  const RegisterInput({
+    required this.name,
+    required this.email,
+    required this.password,
+    required this.role,
+  });
+
+  final String name;
+  final String email;
+  final String password;
+  final Role role;
+
+  Map<String, Object?> toJson() => {
+    'name': name,
+    'email': email,
+    'password': password,
+    'role': role.apiValue,
+  };
+}
+
+/// Corpo do início de sessão (E02), sempre como aplicação mobile.
+class LoginInput {
+  const LoginInput({required this.email, required this.password});
+
+  final String email;
+  final String password;
+
+  Map<String, Object?> toJson() => {
+    'email': email,
+    'password': password,
+    // O backend recusa aqui as contas de Administrador
+    'client': 'MOBILE',
+  };
+}
+
+/// Corpo da alteração da própria palavra-passe (E40); a confirmação não é
+/// enviada.
+class ChangePasswordInput {
+  const ChangePasswordInput({
+    required this.currentPassword,
+    required this.newPassword,
+  });
+
+  final String currentPassword;
+  final String newPassword;
+
+  Map<String, Object?> toJson() => {
+    'currentPassword': currentPassword,
+    'newPassword': newPassword,
+  };
 }
