@@ -8,3 +8,12 @@ const String apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
   defaultValue: 'http://10.0.2.2:5041',
 );
+
+/// Contacto de suporte apresentado no início de sessão.
+///
+/// Definido com `--dart-define=SUPPORT_EMAIL=<e-mail>`; tem de ser o mesmo
+/// que o backend indica na mensagem de conta desativada.
+const String supportEmail = String.fromEnvironment(
+  'SUPPORT_EMAIL',
+  defaultValue: 'suporte@localhub.test',
+);

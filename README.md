@@ -25,6 +25,12 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:5041
 
 Sem `API_BASE_URL`, é usado `http://10.0.2.2:5041`, que é o `localhost` do computador visto a partir do emulador Android.
 
+O contacto de suporte mostrado no início de sessão configura-se da mesma forma (`--dart-define=SUPPORT_EMAIL=...`; por omissão, `suporte@localhub.test`). Tem de ser o mesmo que o backend usa na mensagem de conta desativada.
+
+## Comunicação com o backend
+
+Todos os pedidos passam pela função `api()` (`lib/api/api_client.dart`): usa o URL base configurado, envia o token da sessão (`Authorization: Bearer`) e converte as respostas de erro (Problem Details) em `ApiError`, com a mensagem `detail` e os erros por campo `errors`. Um 401 fora do início de sessão termina a sessão e leva ao ecrã de início de sessão. O token fica no armazenamento seguro do dispositivo (`lib/api/session.dart`) e é apagado ao terminar a sessão. Sem ligação ao backend, os ecrãs mostram «Não foi possível contactar o servidor. Tente novamente.» (`lib/utils/errors.dart`).
+
 **HTTP sem HTTPS:** só o build de debug aceita HTTP, e só para `10.0.2.2` e `localhost` (`android/app/src/debug/res/xml/network_security_config.xml`). Para usar um telemóvel real com o backend noutro endereço da rede, é preciso acrescentar esse IP a esse ficheiro.
 
 ## Execução local
@@ -104,7 +110,7 @@ A estrutura segue o Modelo de Classes do frontend mobile v03:
 
 ```
 lib/
-  main.dart          arranque da aplicação (tema, português e router)
+  main.dart          arranque da aplicação (sessão, Riverpod, tema, português e router)
   config/            URL base da API
   api/               comunicação com o backend e sessão
   models/            modelos dos dados da API

@@ -9,6 +9,13 @@ void main() {
     expect(guard('/prestador/solicitacoes', hasSession: false), '/boas-vindas');
   });
 
+  test('com a sessão terminada pelo servidor, vão para o início de sessão', () {
+    expect(
+      guard('/cliente/pesquisa', hasSession: false, expired: true),
+      '/login',
+    );
+  });
+
   test('as rotas públicas abrem sem sessão', () {
     expect(guard('/boas-vindas', hasSession: false), isNull);
     expect(guard('/login', hasSession: false), isNull);
