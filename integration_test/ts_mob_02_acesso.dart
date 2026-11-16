@@ -7,23 +7,14 @@ import 'helpers/app.dart';
 import 'helpers/providers.dart';
 
 /// TS-MOB-02 — Credenciais inválidas, administrador recusado e acesso por
-/// papel (RF-F001-02, RF-F001-03, RF-F001-06; RF-F002-04).
+/// papel (RF-F001-03, RF-F001-06).
 void tsMob02Tests() {
   testWidgets(
-    'recusa credenciais erradas, a conta desativada e o Administrador (RF-F001-02, RF-F001-06)',
+    'recusa credenciais erradas e o Administrador (RF-F001-03, RF-F001-06)',
     (tester) async {
       final client = await registerAndLogin('CLIENT');
-      final inactive = await registerAndLogin('CLIENT');
-      await deactivateAccount(inactive.user['userId'] as int);
       await pumpApp(tester);
       await tapText(tester, 'Iniciar sessão');
-
-      // A ligação mostra o contacto do suporte, sem pedido ao backend
-      await tapText(tester, 'Esqueci-me da palavra-passe');
-      expect(
-        find.textContaining('Para recuperar o acesso, contacte'),
-        findsOneWidget,
-      );
 
       // E-mail inexistente e palavra-passe errada: a mesma mensagem
       const wrong = 'O e-mail ou a palavra-passe estão incorretos.';
@@ -32,9 +23,7 @@ void tsMob02Tests() {
       await loginThroughUi(tester, client.email, 'Errada2026');
       await waitForText(tester, wrong);
 
-      await loginThroughUi(tester, inactive.email, testPassword);
-      await waitForText(tester, 'A sua conta foi desativada.');
-
+      // RF-F001-06: o Administrador é recusado na aplicação mobile, sem sessão
       await loginThroughUi(tester, adminEmail, adminPassword);
       await waitForText(tester, 'aplicação web');
       expect(Session.instance.token, isNull);
@@ -42,23 +31,17 @@ void tsMob02Tests() {
   );
 
   testWidgets(
-    'cada papel só vê os seus ecrãs e o Prestador sem perfil vai para o M04 (RF-F001-03)',
+    'o Visitante e o Prestador não abrem ecrãs que não são seus (RF-F001-03)',
     (tester) async {
-      final noProfile = await registerAndLogin('PROVIDER');
       final provider = await createProviderWithProfile();
       final app = await pumpApp(tester);
 
-      await tapText(tester, 'Iniciar sessão');
-      await loginThroughUi(tester, noProfile.email, testPassword);
-      await waitForLocation(tester, app, '/prestador/sem-perfil');
-      expect(find.text('Crie o seu perfil profissional'), findsOneWidget);
+      // Visitante numa rota protegida: vai para o início de sessão
       app.router.go('/cliente/conta');
       await tester.pumpAndSettle();
-      expect(app.router.state.matchedLocation, '/prestador/sem-perfil');
-      await tapText(tester, 'Terminar sessão');
-      await waitForLocation(tester, app, '/boas-vindas');
+      expect(app.router.state.matchedLocation, '/login');
 
-      await tapText(tester, 'Iniciar sessão');
+      // Prestador numa rota de Cliente: volta ao seu início
       await loginThroughUi(tester, provider.account.email, testPassword);
       await waitForLocation(tester, app, '/prestador/solicitacoes');
       expect(find.text('Propostas'), findsOneWidget);

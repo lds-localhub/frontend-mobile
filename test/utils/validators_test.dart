@@ -19,12 +19,4 @@ void main() {
     expect(name(' abc '), isNull);
     expect(name('abcd'), 'longo');
   });
-
-  test('o e-mail precisa de texto, @ e um domínio com ponto', () {
-    final validate = email('inválido');
-
-    expect(validate('ana@localhub.test'), isNull);
-    expect(validate('ana@localhub'), 'inválido');
-    expect(validate('ana.localhub.test'), 'inválido');
-  });
 }

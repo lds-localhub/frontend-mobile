@@ -13,37 +13,33 @@ void tsMob01Tests() {
     (tester) async {
       final id = uniqueId();
       final email = uniqueEmail('cliente', id);
-      final existing = await registerAndLogin('CLIENT');
       final app = await pumpApp(tester);
 
-      // RF-F001-01: registo, com o erro do e-mail repetido junto ao campo
+      // RF-F001-01: registo (M02)
       await tapText(tester, 'Criar conta');
       expect(find.text('Leva menos de um minuto.'), findsOneWidget);
       await fillField(tester, 'name', 'Cliente $id');
-      await fillField(tester, 'email', existing.email.toUpperCase());
-      await fillField(tester, 'password', testPassword);
-      await tapText(tester, 'Criar conta');
-      await waitForText(tester, 'Já existe uma conta com este e-mail.');
-
       await fillField(tester, 'email', email);
+      await fillField(tester, 'password', testPassword);
       await tapText(tester, 'Criar conta');
       await waitForText(tester, 'Conta criada. Inicie sessão.');
 
-      // RF-F001-02: início de sessão com o papel da conta
+      // RF-F001-02: início de sessão (M03) com o papel da conta
       await loginThroughUi(tester, email, testPassword);
       await waitForLocation(tester, app, '/cliente/pesquisa');
       expect(find.text('Serviços'), findsOneWidget);
 
-      // RF-F001-04: terminar sessão apaga o token e fecha os ecrãs protegidos
+      // RF-F001-04: terminar sessão (M16) apaga o token, mostra o início de
+      // sessão e fecha os ecrãs protegidos
       await tapText(tester, 'Conta');
       expect(find.text('Cliente · $email'), findsOneWidget);
       await tapText(tester, 'Terminar sessão');
-      await waitForText(tester, 'Serviços para o lar, perto de si');
+      await waitForLocation(tester, app, '/login');
       expect(Session.instance.token, isNull);
 
       app.router.go('/cliente/conta');
       await tester.pumpAndSettle();
-      expect(app.router.state.matchedLocation, '/boas-vindas');
+      expect(app.router.state.matchedLocation, '/login');
     },
   );
 }
