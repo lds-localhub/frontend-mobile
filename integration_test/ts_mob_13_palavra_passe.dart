@@ -10,9 +10,10 @@ void tsMob13Tests() {
     (tester) async {
       final account = await registerAndLogin('CLIENT');
       const newPassword = 'Jardim2027';
-      await pumpApp(tester);
+      final app = await pumpApp(tester);
       await tapText(tester, 'Iniciar sessão');
       await loginThroughUi(tester, account.email, testPassword);
+      await waitForLocation(tester, app, '/cliente/pesquisa');
       await tapText(tester, 'Conta');
       await tapText(tester, 'Alterar palavra-passe');
 
@@ -30,15 +31,12 @@ void tsMob13Tests() {
       await fillField(tester, 'currentPassword', 'Errada2026');
       await fillField(tester, 'confirmation', newPassword);
       await tapText(tester, 'Guardar');
-      expect(
-        find.text('A palavra-passe atual está incorreta.'),
-        findsOneWidget,
-      );
+      await waitForText(tester, 'A palavra-passe atual está incorreta.');
       expect(await canLogin(account.email, testPassword), isTrue);
 
       await fillField(tester, 'currentPassword', testPassword);
       await tapText(tester, 'Guardar');
-      expect(find.text('Palavra-passe alterada.'), findsOneWidget);
+      await waitForText(tester, 'Palavra-passe alterada.');
       expect(await canLogin(account.email, newPassword), isTrue);
       expect(await canLogin(account.email, testPassword), isFalse);
     },

@@ -28,18 +28,15 @@ void tsMob02Tests() {
       // E-mail inexistente e palavra-passe errada: a mesma mensagem
       const wrong = 'O e-mail ou a palavra-passe estão incorretos.';
       await loginThroughUi(tester, uniqueEmail('inexistente'), testPassword);
-      expect(find.text(wrong), findsOneWidget);
+      await waitForText(tester, wrong);
       await loginThroughUi(tester, client.email, 'Errada2026');
-      expect(find.text(wrong), findsOneWidget);
+      await waitForText(tester, wrong);
 
       await loginThroughUi(tester, inactive.email, testPassword);
-      expect(
-        find.textContaining('A sua conta foi desativada.'),
-        findsOneWidget,
-      );
+      await waitForText(tester, 'A sua conta foi desativada.');
 
       await loginThroughUi(tester, adminEmail, adminPassword);
-      expect(find.textContaining('aplicação web'), findsOneWidget);
+      await waitForText(tester, 'aplicação web');
       expect(Session.instance.token, isNull);
     },
   );
@@ -53,16 +50,17 @@ void tsMob02Tests() {
 
       await tapText(tester, 'Iniciar sessão');
       await loginThroughUi(tester, noProfile.email, testPassword);
-      expect(app.router.state.matchedLocation, '/prestador/sem-perfil');
+      await waitForLocation(tester, app, '/prestador/sem-perfil');
       expect(find.text('Crie o seu perfil profissional'), findsOneWidget);
       app.router.go('/cliente/conta');
       await tester.pumpAndSettle();
       expect(app.router.state.matchedLocation, '/prestador/sem-perfil');
       await tapText(tester, 'Terminar sessão');
+      await waitForLocation(tester, app, '/boas-vindas');
 
       await tapText(tester, 'Iniciar sessão');
       await loginThroughUi(tester, provider.account.email, testPassword);
-      expect(app.router.state.matchedLocation, '/prestador/solicitacoes');
+      await waitForLocation(tester, app, '/prestador/solicitacoes');
       expect(find.text('Propostas'), findsOneWidget);
       app.router.go('/cliente/criar');
       await tester.pumpAndSettle();

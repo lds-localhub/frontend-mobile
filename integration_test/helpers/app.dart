@@ -57,6 +57,44 @@ Future<void> tapText(WidgetTester tester, String label) async {
   await tester.pumpAndSettle();
 }
 
+/// Espera, com tempo limite, que [condition] se verifique.
+///
+/// O `pumpAndSettle` não espera pelos pedidos ao backend: sem isto, num
+/// emulador lento, o teste verifica o ecrã antes de a resposta chegar.
+Future<void> pumpUntil(
+  WidgetTester tester,
+  bool Function() condition, {
+  required String description,
+}) async {
+  final deadline = DateTime.now().add(const Duration(seconds: 20));
+  while (!condition()) {
+    if (DateTime.now().isAfter(deadline)) {
+      throw TestFailure('Tempo esgotado à espera de $description.');
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
+}
+
+/// Espera que o texto [text] apareça no ecrã.
+Future<void> waitForText(WidgetTester tester, String text) => pumpUntil(
+  tester,
+  () => find.textContaining(text).evaluate().isNotEmpty,
+  description: '«$text»',
+);
+
+/// Espera que a aplicação esteja na rota [location].
+Future<void> waitForLocation(
+  WidgetTester tester,
+  TestApp app,
+  String location,
+) => pumpUntil(
+  tester,
+  () => app.router.state.matchedLocation == location,
+  description: 'a rota $location',
+);
+
 /// Inicia sessão pelo ecrã de início de sessão (M03), já aberto.
 Future<void> loginThroughUi(
   WidgetTester tester,

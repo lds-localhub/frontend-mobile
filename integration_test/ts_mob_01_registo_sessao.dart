@@ -23,22 +23,22 @@ void tsMob01Tests() {
       await fillField(tester, 'email', existing.email.toUpperCase());
       await fillField(tester, 'password', testPassword);
       await tapText(tester, 'Criar conta');
-      expect(find.text('Já existe uma conta com este e-mail.'), findsOneWidget);
+      await waitForText(tester, 'Já existe uma conta com este e-mail.');
 
       await fillField(tester, 'email', email);
       await tapText(tester, 'Criar conta');
-      expect(find.text('Conta criada. Inicie sessão.'), findsOneWidget);
+      await waitForText(tester, 'Conta criada. Inicie sessão.');
 
       // RF-F001-02: início de sessão com o papel da conta
       await loginThroughUi(tester, email, testPassword);
-      expect(app.router.state.matchedLocation, '/cliente/pesquisa');
+      await waitForLocation(tester, app, '/cliente/pesquisa');
       expect(find.text('Serviços'), findsOneWidget);
 
       // RF-F001-04: terminar sessão apaga o token e fecha os ecrãs protegidos
       await tapText(tester, 'Conta');
       expect(find.text('Cliente · $email'), findsOneWidget);
       await tapText(tester, 'Terminar sessão');
-      expect(find.text('Serviços para o lar, perto de si'), findsOneWidget);
+      await waitForText(tester, 'Serviços para o lar, perto de si');
       expect(Session.instance.token, isNull);
 
       app.router.go('/cliente/conta');
