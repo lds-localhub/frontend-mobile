@@ -96,77 +96,81 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         child: Form(
           key: _formKey,
           autovalidateMode: _autovalidateMode,
-          child: ListView(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [
-              Text(
-                'Indique a palavra-passe atual e a nova palavra-passe. As '
-                'sessões iniciadas noutros dispositivos são terminadas; esta '
-                'sessão mantém-se.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              TextFormField(
-                key: const ValueKey('currentPassword'),
-                controller: _currentPassword,
-                decoration: const InputDecoration(
-                  labelText: 'Palavra-passe atual',
+            // Coluna e não ListView: todos os campos existem sempre e são validados, mesmo fora do ecrã
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Indique a palavra-passe atual e a nova palavra-passe. As '
+                  'sessões iniciadas noutros dispositivos são terminadas; esta '
+                  'sessão mantém-se.',
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                obscureText: true,
-                autocorrect: false,
-                enableSuggestions: false,
-                textInputAction: TextInputAction.next,
-                validator: notEmpty('Indique a palavra-passe atual.'),
-                forceErrorText: _serverErrors['currentPassword'],
-                onChanged: (_) => _clearServerError('currentPassword'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextFormField(
-                key: const ValueKey('newPassword'),
-                controller: _newPassword,
-                decoration: const InputDecoration(
-                  labelText: 'Nova palavra-passe',
-                  helperText:
-                      'Mínimo de 8 caracteres, com pelo menos uma letra e um '
-                      'algarismo.',
-                  helperMaxLines: 2,
+                const SizedBox(height: AppSpacing.lg),
+                TextFormField(
+                  key: const ValueKey('currentPassword'),
+                  controller: _currentPassword,
+                  decoration: const InputDecoration(
+                    labelText: 'Palavra-passe atual',
+                  ),
+                  obscureText: true,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  textInputAction: TextInputAction.next,
+                  validator: notEmpty('Indique a palavra-passe atual.'),
+                  forceErrorText: _serverErrors['currentPassword'],
+                  onChanged: (_) => _clearServerError('currentPassword'),
                 ),
-                obscureText: true,
-                autocorrect: false,
-                enableSuggestions: false,
-                textInputAction: TextInputAction.next,
-                validator: all([
-                  notEmpty('Indique a nova palavra-passe.'),
-                  password(),
-                ]),
-                forceErrorText: _serverErrors['newPassword'],
-                onChanged: (_) => _clearServerError('newPassword'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextFormField(
-                key: const ValueKey('confirmation'),
-                controller: _confirmation,
-                decoration: const InputDecoration(
-                  labelText: 'Confirmar nova palavra-passe',
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  key: const ValueKey('newPassword'),
+                  controller: _newPassword,
+                  decoration: const InputDecoration(
+                    labelText: 'Nova palavra-passe',
+                    helperText:
+                        'Mínimo de 8 caracteres, com pelo menos uma letra e um '
+                        'algarismo.',
+                    helperMaxLines: 2,
+                  ),
+                  obscureText: true,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  textInputAction: TextInputAction.next,
+                  validator: all([
+                    notEmpty('Indique a nova palavra-passe.'),
+                    password(),
+                  ]),
+                  forceErrorText: _serverErrors['newPassword'],
+                  onChanged: (_) => _clearServerError('newPassword'),
                 ),
-                obscureText: true,
-                autocorrect: false,
-                enableSuggestions: false,
-                // Só o telemóvel verifica a confirmação: não é enviada ao backend
-                validator: all([
-                  notEmpty('Confirme a nova palavra-passe.'),
-                  (value) => value == _newPassword.text
-                      ? null
-                      : 'A confirmação não corresponde à nova palavra-passe.',
-                ]),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              FormErrorText(_generalError),
-              FilledButton(
-                onPressed: _submitting ? null : _handleSubmit,
-                child: const Text('Guardar'),
-              ),
-            ],
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  key: const ValueKey('confirmation'),
+                  controller: _confirmation,
+                  decoration: const InputDecoration(
+                    labelText: 'Confirmar nova palavra-passe',
+                  ),
+                  obscureText: true,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  // Só o telemóvel verifica a confirmação: não é enviada ao backend
+                  validator: all([
+                    notEmpty('Confirme a nova palavra-passe.'),
+                    (value) => value == _newPassword.text
+                        ? null
+                        : 'A confirmação não corresponde à nova palavra-passe.',
+                  ]),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                FormErrorText(_generalError),
+                FilledButton(
+                  onPressed: _submitting ? null : _handleSubmit,
+                  child: const Text('Guardar'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

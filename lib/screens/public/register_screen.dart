@@ -95,94 +95,98 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Form(
           key: _formKey,
           autovalidateMode: _autovalidateMode,
-          child: ListView(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [
-              Text('Criar conta', style: theme.textTheme.headlineSmall),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'Leva menos de um minuto.',
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              TextFormField(
-                key: const ValueKey('name'),
-                controller: _name,
-                decoration: const InputDecoration(labelText: 'Nome'),
-                textInputAction: TextInputAction.next,
-                textCapitalization: TextCapitalization.words,
-                validator: all([
-                  notEmpty('Indique o nome.'),
-                  maxLength(100, 'O nome é demasiado longo.'),
-                ]),
-                forceErrorText: _serverErrors['name'],
-                onChanged: (_) => _clearServerError('name'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextFormField(
-                key: const ValueKey('email'),
-                controller: _email,
-                decoration: const InputDecoration(labelText: 'E-mail'),
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                autocorrect: false,
-                validator: all([
-                  notEmpty('Indique o e-mail.'),
-                  maxLength(254, 'O e-mail é demasiado longo.'),
-                  email('O e-mail não é válido.'),
-                ]),
-                forceErrorText: _serverErrors['email'],
-                onChanged: (_) => _clearServerError('email'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextFormField(
-                key: const ValueKey('password'),
-                controller: _password,
-                decoration: const InputDecoration(
-                  labelText: 'Palavra-passe',
-                  helperText: 'Mínimo 8 caracteres, com letras e algarismos.',
+            // Coluna e não ListView: todos os campos existem sempre e são validados, mesmo fora do ecrã
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('Criar conta', style: theme.textTheme.headlineSmall),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Leva menos de um minuto.',
+                  style: theme.textTheme.bodyMedium,
                 ),
-                obscureText: true,
-                autocorrect: false,
-                enableSuggestions: false,
-                validator: all([
-                  notEmpty('Indique a palavra-passe.'),
-                  password(),
-                ]),
-                forceErrorText: _serverErrors['password'],
-                onChanged: (_) => _clearServerError('password'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text('Tipo de conta', style: theme.textTheme.titleSmall),
-              const SizedBox(height: AppSpacing.sm),
-              SegmentedButton<Role>(
-                segments: const [
-                  ButtonSegment(value: Role.client, label: Text('Cliente')),
-                  ButtonSegment(
-                    value: Role.provider,
-                    label: Text('Prestador de Serviços'),
+                const SizedBox(height: AppSpacing.lg),
+                TextFormField(
+                  key: const ValueKey('name'),
+                  controller: _name,
+                  decoration: const InputDecoration(labelText: 'Nome'),
+                  textInputAction: TextInputAction.next,
+                  textCapitalization: TextCapitalization.words,
+                  validator: all([
+                    notEmpty('Indique o nome.'),
+                    maxLength(100, 'O nome é demasiado longo.'),
+                  ]),
+                  forceErrorText: _serverErrors['name'],
+                  onChanged: (_) => _clearServerError('name'),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  key: const ValueKey('email'),
+                  controller: _email,
+                  decoration: const InputDecoration(labelText: 'E-mail'),
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  autocorrect: false,
+                  validator: all([
+                    notEmpty('Indique o e-mail.'),
+                    maxLength(254, 'O e-mail é demasiado longo.'),
+                    email('O e-mail não é válido.'),
+                  ]),
+                  forceErrorText: _serverErrors['email'],
+                  onChanged: (_) => _clearServerError('email'),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  key: const ValueKey('password'),
+                  controller: _password,
+                  decoration: const InputDecoration(
+                    labelText: 'Palavra-passe',
+                    helperText: 'Mínimo 8 caracteres, com letras e algarismos.',
                   ),
-                ],
-                selected: {_role},
-                showSelectedIcon: false,
-                onSelectionChanged: (selection) => setState(() {
-                  _role = selection.first;
-                  _serverErrors = {..._serverErrors}..remove('role');
-                }),
-              ),
-              FormErrorText(_serverErrors['role']),
-              const SizedBox(height: AppSpacing.xl),
-              FormErrorText(_generalError),
-              FilledButton(
-                onPressed: _submitting ? null : _handleSubmit,
-                child: const Text('Criar conta'),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              TextButton(
-                onPressed: () => context.pushReplacement('/login'),
-                child: const Text('Já tenho conta — Iniciar sessão'),
-              ),
-            ],
+                  obscureText: true,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  validator: all([
+                    notEmpty('Indique a palavra-passe.'),
+                    password(),
+                  ]),
+                  forceErrorText: _serverErrors['password'],
+                  onChanged: (_) => _clearServerError('password'),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text('Tipo de conta', style: theme.textTheme.titleSmall),
+                const SizedBox(height: AppSpacing.sm),
+                SegmentedButton<Role>(
+                  segments: const [
+                    ButtonSegment(value: Role.client, label: Text('Cliente')),
+                    ButtonSegment(
+                      value: Role.provider,
+                      label: Text('Prestador de Serviços'),
+                    ),
+                  ],
+                  selected: {_role},
+                  showSelectedIcon: false,
+                  onSelectionChanged: (selection) => setState(() {
+                    _role = selection.first;
+                    _serverErrors = {..._serverErrors}..remove('role');
+                  }),
+                ),
+                FormErrorText(_serverErrors['role']),
+                const SizedBox(height: AppSpacing.xl),
+                FormErrorText(_generalError),
+                FilledButton(
+                  onPressed: _submitting ? null : _handleSubmit,
+                  child: const Text('Criar conta'),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                TextButton(
+                  onPressed: () => context.pushReplacement('/login'),
+                  child: const Text('Já tenho conta — Iniciar sessão'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

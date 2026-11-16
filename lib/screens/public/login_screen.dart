@@ -94,78 +94,82 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Form(
           key: _formKey,
           autovalidateMode: _autovalidateMode,
-          child: ListView(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [
-              if (notice != null) ...[
-                _Banner(icon: Icons.info_outline, text: notice),
-                const SizedBox(height: AppSpacing.md),
-              ],
-              Text(
-                'Entre com o e-mail e a palavra-passe da sua conta.',
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              TextFormField(
-                key: const ValueKey('email'),
-                controller: _email,
-                decoration: const InputDecoration(labelText: 'E-mail'),
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                autocorrect: false,
-                validator: notEmpty('O e-mail é obrigatório.'),
-                forceErrorText: _serverErrors['email'],
-                onChanged: (_) => _clearServerError('email'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextFormField(
-                key: const ValueKey('password'),
-                controller: _password,
-                decoration: const InputDecoration(labelText: 'Palavra-passe'),
-                obscureText: true,
-                autocorrect: false,
-                enableSuggestions: false,
-                validator: notEmpty('A palavra-passe é obrigatória.'),
-                forceErrorText: _serverErrors['password'],
-                onChanged: (_) => _clearServerError('password'),
-                onFieldSubmitted: (_) => _submitting ? null : _handleSubmit(),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () => setState(() => _forgotOpen = !_forgotOpen),
-                  child: const Text('Esqueci-me da palavra-passe'),
+            // Coluna e não ListView: todos os campos existem sempre e são validados, mesmo fora do ecrã
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (notice != null) ...[
+                  _Banner(icon: Icons.info_outline, text: notice),
+                  const SizedBox(height: AppSpacing.md),
+                ],
+                Text(
+                  'Entre com o e-mail e a palavra-passe da sua conta.',
+                  style: theme.textTheme.bodyMedium,
                 ),
-              ),
-              // Não há recuperação pelo sistema: a administração redefine a palavra-passe
-              if (_forgotOpen) ...[
+                const SizedBox(height: AppSpacing.lg),
+                TextFormField(
+                  key: const ValueKey('email'),
+                  controller: _email,
+                  decoration: const InputDecoration(labelText: 'E-mail'),
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  autocorrect: false,
+                  validator: notEmpty('O e-mail é obrigatório.'),
+                  forceErrorText: _serverErrors['email'],
+                  onChanged: (_) => _clearServerError('email'),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  key: const ValueKey('password'),
+                  controller: _password,
+                  decoration: const InputDecoration(labelText: 'Palavra-passe'),
+                  obscureText: true,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  validator: notEmpty('A palavra-passe é obrigatória.'),
+                  forceErrorText: _serverErrors['password'],
+                  onChanged: (_) => _clearServerError('password'),
+                  onFieldSubmitted: (_) => _submitting ? null : _handleSubmit(),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: () => setState(() => _forgotOpen = !_forgotOpen),
+                    child: const Text('Esqueci-me da palavra-passe'),
+                  ),
+                ),
+                // Não há recuperação pelo sistema: a administração redefine a palavra-passe
+                if (_forgotOpen) ...[
+                  const _Banner(
+                    icon: Icons.key_outlined,
+                    text:
+                        'Para recuperar o acesso, contacte $supportEmail a '
+                        'partir do endereço de e-mail registado na conta.',
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                ],
+                const SizedBox(height: AppSpacing.sm),
+                FormErrorText(_generalError),
+                FilledButton(
+                  onPressed: _submitting ? null : _handleSubmit,
+                  child: const Text('Entrar'),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                TextButton(
+                  onPressed: () => context.pushReplacement('/registar'),
+                  child: const Text('Criar conta'),
+                ),
+                const SizedBox(height: AppSpacing.md),
                 const _Banner(
-                  icon: Icons.key_outlined,
+                  icon: Icons.mail_outline,
                   text:
-                      'Para recuperar o acesso, contacte $supportEmail a '
-                      'partir do endereço de e-mail registado na conta.',
+                      'Precisa de ajuda com a sua conta? Contacte o suporte: '
+                      '$supportEmail',
                 ),
-                const SizedBox(height: AppSpacing.md),
               ],
-              const SizedBox(height: AppSpacing.sm),
-              FormErrorText(_generalError),
-              FilledButton(
-                onPressed: _submitting ? null : _handleSubmit,
-                child: const Text('Entrar'),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              TextButton(
-                onPressed: () => context.pushReplacement('/registar'),
-                child: const Text('Criar conta'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              const _Banner(
-                icon: Icons.mail_outline,
-                text:
-                    'Precisa de ajuda com a sua conta? Contacte o suporte: '
-                    '$supportEmail',
-              ),
-            ],
+            ),
           ),
         ),
       ),
