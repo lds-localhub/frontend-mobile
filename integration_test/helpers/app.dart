@@ -17,13 +17,18 @@ class TestApp {
 }
 
 /// Abre a aplicação sem sessão (o token de um teste anterior fica no
-/// armazenamento do emulador), com providers próprios para este teste.
-Future<TestApp> pumpApp(WidgetTester tester) async {
+/// armazenamento do emulador), ou com a sessão do [token], com providers
+/// próprios para este teste.
+Future<TestApp> pumpApp(WidgetTester tester, {String? token}) async {
   // Teclado simulado: o teclado do Android tapa metade de um ecrã pequeno e
   // muda o layout a meio dos toques; o texto entra nos campos da mesma forma
   tester.testTextInput.register();
   addTearDown(tester.testTextInput.unregister);
-  await Session.instance.end();
+  if (token == null) {
+    await Session.instance.end();
+  } else {
+    await Session.instance.start(token);
+  }
   final container = ProviderContainer(retry: retryReads);
   addTearDown(container.dispose);
   await tester.pumpWidget(

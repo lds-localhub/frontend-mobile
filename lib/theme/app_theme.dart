@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import 'package:localhub/models/tone.dart';
+
 // Tipos de letra declarados no pubspec.yaml: Figtree no texto e Bricolage Grotesque nos títulos
 const _bodyFont = 'Figtree';
 const _headingFont = 'Bricolage Grotesque';
@@ -17,6 +19,34 @@ abstract final class _AppColors {
   static const textSecondary = Color(0xFF2F3C37);
   static const textMuted = Color(0xFF55625D);
   static const danger = Color(0xFFA8261C);
+  static const info = Color(0xFF3B3F8F);
+  static const pending = Color(0xFF7A4300);
+  static const warning = Color(0xFFB7791F);
+  static const success = Color(0xFF2F7D4A);
+  static const neutral = Color(0xFF7D8884);
+}
+
+/// Cores dos tons dos estados (etiquetas e barras dos relatórios).
+class ToneColors extends ThemeExtension<ToneColors> {
+  const ToneColors(this.colors);
+
+  final Map<Tone, Color> colors;
+
+  /// Cor do [tone] no tema de [context].
+  static Color of(BuildContext context, Tone tone) =>
+      Theme.of(context).extension<ToneColors>()!.colors[tone]!;
+
+  @override
+  ToneColors copyWith({Map<Tone, Color>? colors}) =>
+      ToneColors(colors ?? this.colors);
+
+  @override
+  ToneColors lerp(ToneColors? other, double t) => other == null
+      ? this
+      : ToneColors({
+          for (final tone in Tone.values)
+            tone: Color.lerp(colors[tone], other.colors[tone], t)!,
+        });
 }
 
 /// Espaçamentos usados entre e dentro dos componentes.
@@ -55,6 +85,16 @@ final appTheme = ThemeData(
     error: _AppColors.danger,
   ),
   scaffoldBackgroundColor: _AppColors.background,
+  extensions: const [
+    ToneColors({
+      Tone.info: _AppColors.info,
+      Tone.pending: _AppColors.pending,
+      Tone.warning: _AppColors.warning,
+      Tone.success: _AppColors.success,
+      Tone.danger: _AppColors.danger,
+      Tone.neutral: _AppColors.neutral,
+    }),
+  ],
   appBarTheme: const AppBarTheme(
     backgroundColor: _AppColors.surface,
     foregroundColor: _AppColors.text,
