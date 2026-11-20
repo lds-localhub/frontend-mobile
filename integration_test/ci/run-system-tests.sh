@@ -37,12 +37,16 @@ adb shell dumpsys package "$package" | grep -E 'ACCESS_(FINE|COARSE)_LOCATION: g
 adb shell cmd location set-location-enabled true
 ( while true; do adb emu geo fix -8.6110 41.1496; sleep 3; done ) > /dev/null 2>&1 &
 geo_fix_pid=$!
-# No fim, o registo do Android fica nas evidências (ex.: porque não chegou a posição)
-trap 'kill "$geo_fix_pid" 2> /dev/null || true; adb logcat -d -v time > logs/logcat.txt 2>&1 || true' EXIT
+# O registo do Android é gravado à medida, para ficar nas evidências mesmo que o trabalho seja
+# cancelado a meio (ex.: porque não chegou a posição, ou porque os testes não arrancaram)
+adb logcat -v time > logs/logcat.txt 2>&1 &
+logcat_pid=$!
+trap 'kill "$geo_fix_pid" "$logcat_pid" 2> /dev/null || true' EXIT
 sleep 5
 adb shell dumpsys location > logs/localizacao.txt 2>&1 || true
 
 # Entrada única dos testes de sistema, no emulador (-d), e não noutro dispositivo do runner
-# (ex.: Linux desktop); a saída fica nos registos (evidência)
-flutter test integration_test/app_test.dart -d "$(adb get-serialno)" --reporter expanded 2>&1 \
-  | tee logs/integration_test.log
+# (ex.: Linux desktop); a saída fica nos registos (evidência). Com limite de tempo, para uma
+# execução pendurada terminar com as evidências guardadas, antes do limite do trabalho
+timeout 20m flutter test integration_test/app_test.dart -d "$(adb get-serialno)" \
+  --reporter expanded 2>&1 | tee logs/integration_test.log
