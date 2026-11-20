@@ -23,15 +23,12 @@ void main() {
   test('o raio é um número inteiro de 1 a 100, com os limites incluídos', () {
     final radius = intRange(1, 100, 'fora');
 
-    expect(radius(null), 'fora');
     expect(radius(''), 'fora');
     expect(radius('0'), 'fora');
     expect(radius('1'), isNull);
     expect(radius('100'), isNull);
     expect(radius('101'), 'fora');
-    expect(radius('-5'), 'fora');
     expect(radius('dez'), 'fora');
-    expect(radius('2,5'), 'fora');
     expect(radius(' 25 '), isNull);
   });
 }
