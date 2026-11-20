@@ -33,23 +33,28 @@ class CurrentPositionButton extends StatefulWidget {
 class _CurrentPositionButtonState extends State<CurrentPositionButton> {
   bool _loading = false;
 
-  // `null` quando a posição não pode ser obtida: localização desligada,
-  // permissão recusada (também para sempre) ou o dispositivo não respondeu
-  Future<Position?> _getPosition() async {
+  // `false` quando a permissão é recusada (também para sempre)
+  Future<bool> _hasPermission() async {
     try {
       var permission = await Geolocator.checkPermission();
       // A janela da aplicação só aparece enquanto o sistema ainda pode perguntar
       if (permission == LocationPermission.denied) {
         if (!mounted || !await LocationPermissionSheet.show(context)) {
-          return null;
+          return false;
         }
         permission = await Geolocator.requestPermission();
       }
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        return null;
-      }
-      // Só depois da permissão: a janela explicativa aparece mesmo com a localização desligada
+      return permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // `null` quando a posição não pode ser obtida: localização desligada ou o
+  // dispositivo não respondeu
+  Future<Position?> _getPosition() async {
+    try {
       if (!await Geolocator.isLocationServiceEnabled()) {
         return null;
       }
@@ -66,6 +71,17 @@ class _CurrentPositionButtonState extends State<CurrentPositionButton> {
 
   Future<void> _handlePressed() async {
     widget.onError(null);
+    // A permissão vem antes do indicador de carregamento: com a janela aberta
+    // ainda não se está a obter nada
+    if (!await _hasPermission()) {
+      if (mounted) {
+        widget.onError(_positionUnavailable);
+      }
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
     setState(() => _loading = true);
     try {
       final position = await _getPosition();

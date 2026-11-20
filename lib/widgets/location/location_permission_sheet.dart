@@ -12,6 +12,9 @@ class LocationPermissionSheet extends StatelessWidget {
     final allowed = await showModalBottomSheet<bool>(
       context: context,
       showDragHandle: true,
+      // Sem isto a janela fica limitada a pouco mais de meio ecrã, e num ecrã
+      // pequeno o texto e os botões não cabem
+      isScrollControlled: true,
       builder: (context) => const LocationPermissionSheet(),
     );
     return allowed ?? false;
@@ -23,7 +26,7 @@ class LocationPermissionSheet extends StatelessWidget {
     final colors = theme.colorScheme;
 
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.lg,
           0,
