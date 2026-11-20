@@ -214,9 +214,7 @@ class _RatingEvolution extends StatelessWidget {
                   Text(
                     month.averageRating == null
                         ? '—'
-                        : month.averageRating!
-                              .toStringAsFixed(1)
-                              .replaceAll('.', ','),
+                        : formatAverageRating(month.averageRating!),
                     style: strong,
                   ),
                 ],

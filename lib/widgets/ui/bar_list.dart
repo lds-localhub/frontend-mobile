@@ -28,7 +28,7 @@ class BarList extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(
-                  width: 104,
+                  width: AppBarSizes.labelWidth,
                   child: Text(item.label, style: theme.textTheme.bodyMedium),
                 ),
                 Expanded(
@@ -36,7 +36,7 @@ class BarList extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppSpacing.xs),
                     child: LinearProgressIndicator(
                       value: max == 0 ? 0 : item.value / max,
-                      minHeight: 10,
+                      minHeight: AppBarSizes.height,
                       backgroundColor: theme.colorScheme.secondaryContainer,
                       color: item.tone == null
                           ? theme.colorScheme.primary
@@ -45,7 +45,7 @@ class BarList extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  width: 40,
+                  width: AppBarSizes.valueWidth,
                   child: Text(
                     '${item.value}',
                     textAlign: TextAlign.end,

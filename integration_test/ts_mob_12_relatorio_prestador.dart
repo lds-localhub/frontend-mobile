@@ -26,8 +26,10 @@ void tsMob12Tests() {
     await declineProposal(client, declinedProposalId);
     // A evolução usa o mês da avaliação em UTC
     final currentMonth = formatMonth(todayUtc().substring(0, 7));
-    final today = DateTime.now();
-    final yesterday = today.subtract(const Duration(days: 1));
+    // Hoje e ontem em UTC, como as datas de criação dos serviços no backend
+    final now = DateTime.now().toUtc();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
 
     final app = await pumpApp(tester);
     await tapText(tester, 'Iniciar sessão');

@@ -51,6 +51,20 @@ flutter run
 | `./integration_test/ci/run-system-tests.sh` | Testes de sistema no emulador, com o backend e o stub do Nominatim a correr (ver [Testes de sistema](#testes-de-sistema)). |
 | `flutter build apk --debug` | Gera o APK de debug em `build/app/outputs/flutter-apk/`. |
 
+## Testes unitários
+
+Os testes unitários (`test/utils/`) correm com:
+
+```bash
+flutter test test/utils
+```
+
+A pipeline não os corre: são executados antes de cada push pelo hook versionado `.githooks/pre-push`, que cancela o push se algum falhar. Ativação, uma vez por clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ## Testes de sistema
 
 Os testes de sistema (`integration_test/`, quality gate QG-07) correm num emulador Android 16 (API 36) contra o backend real e um geocodificador simulado (stub do Nominatim). Na pipeline, o job `testes-sistema-mobile` monta este ambiente sozinho. Localmente, são precisos quatro passos.

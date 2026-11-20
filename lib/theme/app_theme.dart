@@ -66,6 +66,14 @@ abstract final class AppRadius {
   static const card = 18.0;
 }
 
+/// Tamanhos das barras dos relatórios: a coluna do texto, a do número e a
+/// altura de cada barra.
+abstract final class AppBarSizes {
+  static const labelWidth = 104.0;
+  static const valueWidth = 40.0;
+  static const height = 10.0;
+}
+
 /// Tema Material 3 da aplicação, com as cores e as formas da linha gráfica.
 final appTheme = ThemeData(
   useMaterial3: true,

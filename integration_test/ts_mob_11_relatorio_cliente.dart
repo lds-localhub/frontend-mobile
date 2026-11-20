@@ -14,8 +14,10 @@ void tsMob11Tests() {
     final provider = await createProviderWithProfile();
     await createCompletedService(client, provider);
     final providerName = provider.account.user['name'] as String;
-    final today = DateTime.now();
-    final yesterday = today.subtract(const Duration(days: 1));
+    // Hoje e ontem em UTC, como as datas de criação dos serviços no backend
+    final now = DateTime.now().toUtc();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
 
     final app = await pumpApp(tester);
     await tapText(tester, 'Iniciar sessão');
@@ -61,7 +63,7 @@ void tsMob11Tests() {
       find.text('A data final não pode ser anterior à data inicial.'),
       findsOneWidget,
     );
-    // O relatório que estava no ecrã mantém-se: não houve pedido ao E33
+    // O relatório que estava no ecrã mantém-se
     expect(find.text('Sem atividade no período escolhido.'), findsOneWidget);
   });
 }
