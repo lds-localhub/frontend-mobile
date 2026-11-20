@@ -7,12 +7,14 @@ import 'package:localhub/data/auth.dart';
 import 'package:localhub/models/user.dart';
 import 'package:localhub/screens/account/account_screen.dart';
 import 'package:localhub/screens/account/change_password_screen.dart';
+import 'package:localhub/screens/client/client_report_screen.dart';
 import 'package:localhub/screens/client/my_location_screen.dart';
 import 'package:localhub/screens/placeholder_screen.dart';
 import 'package:localhub/screens/provider/create_profile_screen.dart';
 import 'package:localhub/screens/provider/edit_profile_screen.dart';
 import 'package:localhub/screens/provider/my_profile_screen.dart';
 import 'package:localhub/screens/provider/no_profile_screen.dart';
+import 'package:localhub/screens/provider/provider_report_screen.dart';
 import 'package:localhub/screens/public/login_screen.dart';
 import 'package:localhub/screens/public/not_found_screen.dart';
 import 'package:localhub/screens/public/provider_search_screen.dart';
@@ -181,7 +183,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'localizacao',
                     builder: (context, state) => const MyLocationScreen(),
                   ),
-                  _placeholder('relatorio', 'Relatório de atividade'),
+                  GoRoute(
+                    path: 'relatorio',
+                    builder: (context, state) => const ClientReportScreen(),
+                  ),
                 ],
               ),
             ],
@@ -240,7 +245,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                       ),
                     ],
                   ),
-                  _placeholder('relatorio', 'Relatório de atividade'),
+                  GoRoute(
+                    path: 'relatorio',
+                    builder: (context, state) => const ProviderReportScreen(),
+                  ),
                 ],
               ),
             ],
