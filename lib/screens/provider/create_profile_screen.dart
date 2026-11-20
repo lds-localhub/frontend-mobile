@@ -16,13 +16,17 @@ class CreateProfileScreen extends ConsumerWidget {
   Future<void> _handleSubmit(WidgetRef ref, ProfileInput body) async {
     try {
       await createProfile(ref, body: body);
-      // Com o utilizador já com perfil, as guardas levam ao início do Prestador;
-      // até lá o botão continua desativado e não há segundo envio
-      await ref.read(meProvider.future);
-      showMessage('Perfil criado.');
     } catch (e) {
       await handleActionError(e);
       rethrow;
+    }
+    showMessage('Perfil criado.');
+    // Com o utilizador já com perfil, as guardas levam ao início do Prestador;
+    // até lá o botão continua desativado e não há segundo envio
+    try {
+      await ref.read(meProvider.future);
+    } catch (_) {
+      // O perfil já foi criado: uma falha a recarregar o utilizador não é um erro do envio
     }
   }
 

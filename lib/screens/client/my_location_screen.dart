@@ -75,10 +75,12 @@ class _MyLocationScreenState extends ConsumerState<MyLocationScreen> {
         ref,
         body: LocationInput(address: _address.text.trim()),
       );
+      showMessage('Localização atualizada.');
       // A dica do campo passa a dizer que esta é a localização registada
-      await ref.read(meProvider.future);
-      if (mounted) {
-        showMessage('Localização atualizada.');
+      try {
+        await ref.read(meProvider.future);
+      } catch (_) {
+        // A localização já foi guardada: uma falha a recarregar o utilizador não é um erro do envio
       }
     } catch (e) {
       if (!mounted) {

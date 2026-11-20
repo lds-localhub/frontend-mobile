@@ -19,17 +19,24 @@ class EditProfileScreen extends ConsumerWidget {
   Future<void> _handleSubmit(
     BuildContext context,
     WidgetRef ref,
+    int professionalProfileId,
     ProfileInput body,
   ) async {
     try {
       await updateProfile(ref, body: body);
-      if (context.mounted) {
-        showMessage('Perfil atualizado.');
-        context.pop();
-      }
     } catch (e) {
       await handleActionError(e);
       rethrow;
+    }
+    // O ecrã do perfil, por baixo, tem de já mostrar os dados novos quando este fecha
+    try {
+      await ref.read(profileProvider(professionalProfileId).future);
+    } catch (_) {
+      // O perfil já foi guardado: o ecrã do perfil mostra o erro da leitura e deixa tentar outra vez
+    }
+    if (context.mounted) {
+      showMessage('Perfil atualizado.');
+      context.pop();
     }
   }
 
@@ -61,7 +68,12 @@ class EditProfileScreen extends ConsumerWidget {
                     data: (profile) => ProfileForm(
                       initialValues: profile,
                       submitLabel: 'Guardar alterações',
-                      onSubmit: (body) => _handleSubmit(context, ref, body),
+                      onSubmit: (body) => _handleSubmit(
+                        context,
+                        ref,
+                        professionalProfileId,
+                        body,
+                      ),
                       onCancel: () => context.pop(),
                     ),
                   ),

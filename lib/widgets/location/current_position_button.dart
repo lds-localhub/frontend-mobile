@@ -37,9 +37,6 @@ class _CurrentPositionButtonState extends State<CurrentPositionButton> {
   // permissão recusada (também para sempre) ou o dispositivo não respondeu
   Future<Position?> _getPosition() async {
     try {
-      if (!await Geolocator.isLocationServiceEnabled()) {
-        return null;
-      }
       var permission = await Geolocator.checkPermission();
       // A janela da aplicação só aparece enquanto o sistema ainda pode perguntar
       if (permission == LocationPermission.denied) {
@@ -50,6 +47,10 @@ class _CurrentPositionButtonState extends State<CurrentPositionButton> {
       }
       if (permission != LocationPermission.whileInUse &&
           permission != LocationPermission.always) {
+        return null;
+      }
+      // Só depois da permissão: a janela explicativa aparece mesmo com a localização desligada
+      if (!await Geolocator.isLocationServiceEnabled()) {
         return null;
       }
       return await Geolocator.getCurrentPosition(
