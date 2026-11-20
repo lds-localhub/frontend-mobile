@@ -54,6 +54,17 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   String? _generalError;
   String? _positionError;
   bool _submitting = false;
+  // Para pôr o cursor no primeiro campo de texto com erro, ao enviar
+  final _focusNodes = {
+    for (final field in [
+      'introduction',
+      'contactDetails',
+      'experience',
+      'address',
+      'serviceRadiusKm',
+    ])
+      field: FocusNode(),
+  };
 
   @override
   void initState() {
@@ -80,6 +91,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     _experience.dispose();
     _address.dispose();
     _serviceRadiusKm.dispose();
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
     super.dispose();
   }
 
@@ -116,13 +130,35 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     _clearServerError('serviceCategoryIds');
   }
 
+  // Desliza até ao campo com erro mais acima e, se for de texto, põe lá o cursor. A
+  // ordem dos campos no formulário não é a do ecrã: as categorias só aparecem depois
+  // de carregarem
+  Future<void> _showFirstError(Set<FormFieldState<Object?>> invalid) async {
+    double top(FormFieldState<Object?> field) =>
+        (field.context.findRenderObject()! as RenderBox)
+            .localToGlobal(Offset.zero)
+            .dy;
+    final first = invalid.reduce((a, b) => top(a) <= top(b) ? a : b);
+    await Scrollable.ensureVisible(
+      first.context,
+      alignment: 0.3,
+      duration: const Duration(milliseconds: 200),
+    );
+    final key = first.widget.key;
+    if (key is ValueKey<String>) {
+      _focusNodes[key.value]?.requestFocus();
+    }
+  }
+
   Future<void> _handleSubmit(List<Category> categories) async {
     setState(() {
       _serverErrors = {};
       _generalError = null;
       _autovalidateMode = AutovalidateMode.always;
     });
-    if (!_formKey.currentState!.validate()) {
+    final invalid = _formKey.currentState!.validateGranularly();
+    if (invalid.isNotEmpty) {
+      await _showFirstError(invalid);
       return;
     }
 
@@ -172,6 +208,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
               label: 'Apresentação',
               child: TextFormField(
                 key: const ValueKey('introduction'),
+                focusNode: _focusNodes['introduction'],
                 controller: _introduction,
                 decoration: const InputDecoration(
                   hintText:
@@ -199,6 +236,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
               label: 'Contactos',
               child: TextFormField(
                 key: const ValueKey('contactDetails'),
+                focusNode: _focusNodes['contactDetails'],
                 controller: _contactDetails,
                 decoration: const InputDecoration(
                   hintText: 'Ex.: 912 345 678 (dias úteis, 8h–19h)',
@@ -223,6 +261,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
               label: 'Experiência profissional',
               child: TextFormField(
                 key: const ValueKey('experience'),
+                focusNode: _focusNodes['experience'],
                 controller: _experience,
                 decoration: const InputDecoration(
                   hintText:
@@ -277,6 +316,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
               label: 'Morada',
               child: TextFormField(
                 key: const ValueKey('address'),
+                focusNode: _focusNodes['address'],
                 controller: _address,
                 decoration: InputDecoration(
                   hintText: 'Rua, número, localidade',
@@ -304,6 +344,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
               label: 'Raio de atuação (km)',
               child: TextFormField(
                 key: const ValueKey('serviceRadiusKm'),
+                focusNode: _focusNodes['serviceRadiusKm'],
                 controller: _serviceRadiusKm,
                 decoration: const InputDecoration(errorMaxLines: 2),
                 keyboardType: TextInputType.number,
