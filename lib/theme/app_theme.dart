@@ -68,7 +68,7 @@ abstract final class AppRadius {
 
 /// Tamanhos das barras dos relatórios: a coluna do texto, a do número e a
 /// altura de cada barra.
-abstract final class AppBarSizes {
+abstract final class BarListSizes {
   static const labelWidth = 104.0;
   static const valueWidth = 40.0;
   static const height = 10.0;
