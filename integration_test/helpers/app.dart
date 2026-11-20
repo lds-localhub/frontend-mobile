@@ -41,6 +41,15 @@ Future<void> fillField(WidgetTester tester, String field, String text) async {
 
 /// Toca no botão ou ligação com o texto [label], depois de o tornar visível.
 Future<void> tapText(WidgetTester tester, String label) async {
+  // A mensagem no fundo do ecrã fica 4 s por cima dos botões de baixo: num ecrã
+  // pequeno, o toque cairia na mensagem e não no botão
+  if (find.byType(SnackBar).evaluate().isNotEmpty) {
+    await pumpUntil(
+      tester,
+      () => find.byType(SnackBar).evaluate().isEmpty,
+      description: 'a mensagem fechar',
+    );
+  }
   // Num ecrã pequeno, uma lista só constrói o que está à vista: desliza até o texto existir
   if (find.text(label).evaluate().isEmpty) {
     await tester.scrollUntilVisible(
