@@ -95,6 +95,17 @@ Future<void> waitForLocation(
   description: 'a rota $location',
 );
 
+/// Texto do campo do formulário com a chave [field].
+String fieldText(WidgetTester tester, String field) => tester
+    .widget<EditableText>(
+      find.descendant(
+        of: find.byKey(ValueKey(field)),
+        matching: find.byType(EditableText),
+      ),
+    )
+    .controller
+    .text;
+
 /// Inicia sessão pelo ecrã de início de sessão (M03), já aberto.
 Future<void> loginThroughUi(
   WidgetTester tester,
