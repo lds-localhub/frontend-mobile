@@ -9,6 +9,7 @@ abstract final class _AppColors {
   static const primary = Color(0xFF0F6B57);
   static const primarySoft = Color(0xFFEAF1EE);
   static const primarySoftStrong = Color(0xFFD6ECE5);
+  static const star = Color(0xFFE59A2F);
   static const background = Color(0xFFF3F6F5);
   static const surface = Color(0xFFFFFFFF);
   static const border = Color(0xFFE1E7E4);
@@ -45,6 +46,8 @@ final appTheme = ThemeData(
     onPrimary: Colors.white,
     primaryContainer: _AppColors.primarySoftStrong,
     onPrimaryContainer: _AppColors.primary,
+    // A linha gráfica não tem terciária: a cor fica para as estrelas das avaliações
+    tertiary: _AppColors.star,
     secondaryContainer: _AppColors.primarySoft,
     onSecondaryContainer: _AppColors.primary,
     surface: _AppColors.surface,
@@ -94,8 +97,6 @@ final appTheme = ThemeData(
     ),
   ),
   inputDecorationTheme: const InputDecorationTheme(
-    // O rótulo fica sempre por cima do campo, como no protótipo
-    floatingLabelBehavior: FloatingLabelBehavior.always,
     filled: true,
     fillColor: _AppColors.surface,
     border: OutlineInputBorder(

@@ -128,9 +128,11 @@ jobs:
       PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
       # Tag do backend contra a qual os testes correm (versão em vigor)
       BACKEND_TAG: v1.1.0
-      # Emulador Android 16 com a imagem Google APIs (RNF-11)
+      # Emulador Android 16 com a imagem base do Android, sem Google Play Services (RNF-11).
+      # Com o Google Play Services, pedir a posição abre a janela da precisão da localização
+      # da Google, que o integration_test não consegue fechar (TS-MOB-14)
       EMULATOR_API_LEVEL: 36
-      EMULATOR_TARGET: google_apis
+      EMULATOR_TARGET: default
       EMULATOR_ARCH: x86_64
 
     # Passos, executados por ordem; se um falhar, os seguintes não correm e a pipeline falha
@@ -288,7 +290,7 @@ jobs:
 
       # Nome do passo (quality gate QG-07)
       - name: QG-07 Testes de sistema (integration_test)
-        # Arranca o emulador Android 16 (API 36, Google APIs) e corre os testes de sistema
+        # Arranca o emulador Android 16 (API 36, imagem base) e corre os testes de sistema
         uses: reactivecircus/android-emulator-runner@v2
         # Opções do emulador
         with:

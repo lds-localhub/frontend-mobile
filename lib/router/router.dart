@@ -7,7 +7,11 @@ import 'package:localhub/data/auth.dart';
 import 'package:localhub/models/user.dart';
 import 'package:localhub/screens/account/account_screen.dart';
 import 'package:localhub/screens/account/change_password_screen.dart';
+import 'package:localhub/screens/client/my_location_screen.dart';
 import 'package:localhub/screens/placeholder_screen.dart';
+import 'package:localhub/screens/provider/create_profile_screen.dart';
+import 'package:localhub/screens/provider/edit_profile_screen.dart';
+import 'package:localhub/screens/provider/my_profile_screen.dart';
 import 'package:localhub/screens/provider/no_profile_screen.dart';
 import 'package:localhub/screens/public/login_screen.dart';
 import 'package:localhub/screens/public/not_found_screen.dart';
@@ -173,7 +177,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/cliente/conta',
                 builder: (context, state) => const AccountScreen(),
                 routes: [
-                  _placeholder('localizacao', 'A minha localização'),
+                  GoRoute(
+                    path: 'localizacao',
+                    builder: (context, state) => const MyLocationScreen(),
+                  ),
                   _placeholder('relatorio', 'Relatório de atividade'),
                 ],
               ),
@@ -222,7 +229,17 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/prestador/conta',
                 builder: (context, state) => const AccountScreen(),
                 routes: [
-                  _placeholder('perfil', 'O meu perfil'),
+                  GoRoute(
+                    path: 'perfil',
+                    builder: (context, state) => const MyProfileScreen(),
+                    routes: [
+                      _placeholder('avaliacoes', 'Avaliações'),
+                      GoRoute(
+                        path: 'editar',
+                        builder: (context, state) => const EditProfileScreen(),
+                      ),
+                    ],
+                  ),
                   _placeholder('relatorio', 'Relatório de atividade'),
                 ],
               ),
@@ -234,7 +251,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/prestador/sem-perfil',
         builder: (context, state) => const NoProfileScreen(),
       ),
-      _placeholder('/prestador/criar-perfil', 'Criar perfil profissional'),
+      GoRoute(
+        path: '/prestador/criar-perfil',
+        builder: (context, state) => const CreateProfileScreen(),
+      ),
       GoRoute(
         path: '/conta/palavra-passe',
         builder: (context, state) => const ChangePasswordScreen(),

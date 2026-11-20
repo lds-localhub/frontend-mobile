@@ -10,6 +10,7 @@ import 'package:localhub/theme/app_theme.dart';
 import 'package:localhub/utils/errors.dart';
 import 'package:localhub/utils/validators.dart';
 import 'package:localhub/widgets/ui/form_error_text.dart';
+import 'package:localhub/widgets/ui/labeled_field.dart';
 
 /// Início de sessão de Cliente ou de Prestador (M03), com o contacto de
 /// suporte e a mensagem do registo ou da sessão terminada.
@@ -109,29 +110,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                TextFormField(
-                  key: const ValueKey('email'),
-                  controller: _email,
-                  decoration: const InputDecoration(labelText: 'E-mail'),
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  autocorrect: false,
-                  validator: notEmpty('O e-mail é obrigatório.'),
-                  forceErrorText: _serverErrors['email'],
-                  onChanged: (_) => _clearServerError('email'),
+                LabeledField(
+                  label: 'E-mail',
+                  child: TextFormField(
+                    key: const ValueKey('email'),
+                    controller: _email,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    autocorrect: false,
+                    validator: notEmpty('O e-mail é obrigatório.'),
+                    forceErrorText: _serverErrors['email'],
+                    onChanged: (_) => _clearServerError('email'),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  key: const ValueKey('password'),
-                  controller: _password,
-                  decoration: const InputDecoration(labelText: 'Palavra-passe'),
-                  obscureText: true,
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  validator: notEmpty('A palavra-passe é obrigatória.'),
-                  forceErrorText: _serverErrors['password'],
-                  onChanged: (_) => _clearServerError('password'),
-                  onFieldSubmitted: (_) => _submitting ? null : _handleSubmit(),
+                LabeledField(
+                  label: 'Palavra-passe',
+                  child: TextFormField(
+                    key: const ValueKey('password'),
+                    controller: _password,
+                    obscureText: true,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    validator: notEmpty('A palavra-passe é obrigatória.'),
+                    forceErrorText: _serverErrors['password'],
+                    onChanged: (_) => _clearServerError('password'),
+                    onFieldSubmitted: (_) =>
+                        _submitting ? null : _handleSubmit(),
+                  ),
                 ),
                 Align(
                   alignment: Alignment.centerLeft,

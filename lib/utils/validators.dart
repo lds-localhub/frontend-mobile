@@ -20,6 +20,12 @@ Validator notEmpty(String message) =>
 Validator maxLength(int max, String message) =>
     (value) => (value != null && value.trim().length > max) ? message : null;
 
+/// Número inteiro de [min] a [max] (ex.: o raio de atuação).
+Validator intRange(int min, int max, String message) => (value) {
+  final number = int.tryParse((value ?? '').trim());
+  return (number == null || number < min || number > max) ? message : null;
+};
+
 /// Formato simples de e-mail (texto, `@`, domínio com ponto); a validação
 /// final é do backend.
 Validator email(String message) =>

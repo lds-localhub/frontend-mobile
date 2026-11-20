@@ -41,6 +41,15 @@ Future<void> fillField(WidgetTester tester, String field, String text) async {
 
 /// Toca no botão ou ligação com o texto [label], depois de o tornar visível.
 Future<void> tapText(WidgetTester tester, String label) async {
+  // A mensagem no fundo do ecrã fica 4 s por cima dos botões de baixo: num ecrã
+  // pequeno, o toque cairia na mensagem e não no botão
+  if (find.byType(SnackBar).evaluate().isNotEmpty) {
+    await pumpUntil(
+      tester,
+      () => find.byType(SnackBar).evaluate().isEmpty,
+      description: 'a mensagem fechar',
+    );
+  }
   // Num ecrã pequeno, uma lista só constrói o que está à vista: desliza até o texto existir
   if (find.text(label).evaluate().isEmpty) {
     await tester.scrollUntilVisible(
@@ -57,6 +66,27 @@ Future<void> tapText(WidgetTester tester, String label) async {
   await tester.pumpAndSettle();
 }
 
+/// Desliza a lista do ecrã até o texto [text] estar à vista (com [up], para
+/// cima).
+///
+/// Uma lista só constrói o que está à vista: num ecrã pequeno, um texto mais
+/// abaixo ainda não existe até se deslizar até ele.
+Future<void> scrollToText(
+  WidgetTester tester,
+  String text, {
+  bool up = false,
+}) async {
+  if (find.text(text).evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      find.text(text),
+      up ? -200 : 200,
+      scrollable: find.byType(Scrollable).first,
+    );
+  }
+  await tester.ensureVisible(find.text(text).last);
+  await tester.pumpAndSettle();
+}
+
 /// Espera, com tempo limite, que [condition] se verifique.
 ///
 /// O `pumpAndSettle` não espera pelos pedidos ao backend: sem isto, num
@@ -65,8 +95,9 @@ Future<void> pumpUntil(
   WidgetTester tester,
   bool Function() condition, {
   required String description,
+  Duration timeout = const Duration(seconds: 20),
 }) async {
-  final deadline = DateTime.now().add(const Duration(seconds: 20));
+  final deadline = DateTime.now().add(timeout);
   while (!condition()) {
     if (DateTime.now().isAfter(deadline)) {
       throw TestFailure('Tempo esgotado à espera de $description.');
@@ -94,6 +125,17 @@ Future<void> waitForLocation(
   () => app.router.state.matchedLocation == location,
   description: 'a rota $location',
 );
+
+/// Texto do campo do formulário com a chave [field].
+String fieldText(WidgetTester tester, String field) => tester
+    .widget<EditableText>(
+      find.descendant(
+        of: find.byKey(ValueKey(field)),
+        matching: find.byType(EditableText),
+      ),
+    )
+    .controller
+    .text;
 
 /// Inicia sessão pelo ecrã de início de sessão (M03), já aberto.
 Future<void> loginThroughUi(

@@ -41,6 +41,7 @@ dependencies:
   flutter_secure_storage: 11.2.0
   # A versão que o flutter_localizations (incluído no material_ui) exige
   intl: 0.20.3
+  geolocator: 14.1.2
 
 dev_dependencies:
   flutter_test:
