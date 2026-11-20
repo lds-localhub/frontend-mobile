@@ -9,6 +9,9 @@ import 'helpers/app.dart';
 /// E35 («{rua} {número}, {código postal} {localidade}»).
 const _positionAddress = 'Rua das Flores Fictícia 12, 4050-001 Porto';
 
+const _positionUnavailable =
+    'Não foi possível obter a posição. Introduza o endereço.';
+
 /// Inicia sessão como um Cliente novo, sem localização, e abre o M15.
 Future<void> _openMyLocation(WidgetTester tester) async {
   final client = await registerAndLogin('CLIENT');
@@ -45,11 +48,22 @@ void tsMob14Tests() {
       // 2. «Usar a minha posição atual» → o campo fica com a morada da posição,
       // sem a janela M06, porque a permissão já foi dada
       await tapText(tester, 'Usar a minha posição atual');
+      // A aplicação espera até 20 s pela posição do dispositivo; se não a
+      // obtiver, mostra o erro, e o teste diz qual foi em vez de só esgotar o tempo
       await pumpUntil(
         tester,
-        () => fieldText(tester, 'address') == _positionAddress,
+        () =>
+            fieldText(tester, 'address') == _positionAddress ||
+            find.text(_positionUnavailable).evaluate().isNotEmpty,
         description: 'a morada da posição no campo',
+        timeout: const Duration(seconds: 40),
       );
+      expect(
+        find.text(_positionUnavailable),
+        findsNothing,
+        reason: 'O dispositivo não devolveu a posição.',
+      );
+      expect(fieldText(tester, 'address'), _positionAddress);
       expect(find.text('Permitir acesso à localização?'), findsNothing);
 
       // 3. «Guardar» → «Localização atualizada.» e a dica da localização atual
@@ -99,10 +113,7 @@ void tsMob14DeniedPermissionTests() {
 
     // 2. «Recusar» → mensagem junto ao campo; o endereço continua editável
     await tapText(tester, 'Recusar');
-    await waitForText(
-      tester,
-      'Não foi possível obter a posição. Introduza o endereço.',
-    );
+    await waitForText(tester, _positionUnavailable);
     await fillField(tester, 'address', testAddresses['carla']!);
     expect(fieldText(tester, 'address'), testAddresses['carla']);
   });

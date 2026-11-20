@@ -57,6 +57,27 @@ Future<void> tapText(WidgetTester tester, String label) async {
   await tester.pumpAndSettle();
 }
 
+/// Desliza a lista do ecrã até o texto [text] estar à vista (com [up], para
+/// cima).
+///
+/// Uma lista só constrói o que está à vista: num ecrã pequeno, um texto mais
+/// abaixo ainda não existe até se deslizar até ele.
+Future<void> scrollToText(
+  WidgetTester tester,
+  String text, {
+  bool up = false,
+}) async {
+  if (find.text(text).evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      find.text(text),
+      up ? -200 : 200,
+      scrollable: find.byType(Scrollable).first,
+    );
+  }
+  await tester.ensureVisible(find.text(text).last);
+  await tester.pumpAndSettle();
+}
+
 /// Espera, com tempo limite, que [condition] se verifique.
 ///
 /// O `pumpAndSettle` não espera pelos pedidos ao backend: sem isto, num
@@ -65,8 +86,9 @@ Future<void> pumpUntil(
   WidgetTester tester,
   bool Function() condition, {
   required String description,
+  Duration timeout = const Duration(seconds: 20),
 }) async {
-  final deadline = DateTime.now().add(const Duration(seconds: 20));
+  final deadline = DateTime.now().add(timeout);
   while (!condition()) {
     if (DateTime.now().isAfter(deadline)) {
       throw TestFailure('Tempo esgotado à espera de $description.');

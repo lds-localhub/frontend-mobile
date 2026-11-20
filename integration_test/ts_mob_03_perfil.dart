@@ -94,10 +94,12 @@ void tsMob03Tests() {
       await waitForLocation(tester, app, '/prestador/conta/perfil');
       await waitForText(tester, introduction);
       expect(find.text('Canalização'), findsOneWidget);
+      await scrollToText(tester, 'Raio de atuação: 25 km');
       expect(find.text('Raio de atuação: 25 km'), findsOneWidget);
 
       // 7. «Editar perfil» (M27b) → acrescentar «Eletricidade» → guardar →
       // M26 com «Perfil atualizado.» e as duas categorias
+      await scrollToText(tester, 'Editar perfil', up: true);
       await tapText(tester, 'Editar perfil');
       await waitForLocation(tester, app, '/prestador/conta/perfil/editar');
       await waitForText(tester, 'Eletricidade');
