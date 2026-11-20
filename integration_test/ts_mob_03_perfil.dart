@@ -97,12 +97,26 @@ void tsMob03Tests() {
       await scrollToText(tester, 'Raio de atuação: 25 km');
       expect(find.text('Raio de atuação: 25 km'), findsOneWidget);
 
-      // 7. «Editar perfil» (M27b) → acrescentar «Eletricidade» → guardar →
-      // M26 com «Perfil atualizado.» e as duas categorias
+      // 7. «Editar perfil» (M27b) → desmarcar «Canalização», a única
+      // categoria → guardar → erro junto às categorias, sem pedido
       await scrollToText(tester, 'Editar perfil', up: true);
       await tapText(tester, 'Editar perfil');
       await waitForLocation(tester, app, '/prestador/conta/perfil/editar');
       await waitForText(tester, 'Eletricidade');
+      await tapText(tester, 'Canalização');
+      await tapText(tester, 'Guardar alterações');
+      expect(
+        find.text('Indique pelo menos uma categoria de serviços.'),
+        findsOneWidget,
+      );
+      expect(
+        app.router.state.matchedLocation,
+        '/prestador/conta/perfil/editar',
+      );
+
+      // 8. Voltar a marcar «Canalização» e acrescentar «Eletricidade» →
+      // guardar → M26 com «Perfil atualizado.» e as duas categorias
+      await tapText(tester, 'Canalização');
       await tapText(tester, 'Eletricidade');
       await tapText(tester, 'Guardar alterações');
       await waitForLocation(tester, app, '/prestador/conta/perfil');
