@@ -89,13 +89,21 @@ dotnet run --project src/LocalHub.Api --launch-profile http
 
 Está pronto quando `http://localhost:5041/api/health` responder `Healthy`.
 
-**4. Testes.** Com o emulador Android 16 aberto:
+**4. Testes.** Com o emulador Android 16 aberto, com a imagem base do Android (`default`, sem Google Play Services), como na pipeline:
 
 ```bash
 ./integration_test/ci/run-system-tests.sh
 ```
 
-É o mesmo script da pipeline: fixa a posição do dispositivo, regista a versão do Android em `logs/emulador.txt`, corre `flutter test integration_test/app_test.dart` no emulador e guarda a saída em `logs/integration_test.log`.
+Com a imagem Google APIs, o pedido da posição do dispositivo abre uma janela do sistema a pedir para ligar a precisão da localização da Google, que os testes não conseguem fechar, e o caso 1 do TS-MOB-14 falha.
+
+É o mesmo script da pipeline:
+
+1. Fixa a posição do dispositivo e regista a versão do Android em `logs/emulador.txt`.
+2. Desinstala a aplicação e corre o caso sem permissão de localização do TS-MOB-14 (`integration_test/ts_mob_14_permissao_recusada.dart`), com a saída em `logs/ts_mob_14_permissao_recusada.log`.
+3. Reinstala a aplicação com as permissões dadas (`adb install -r -g`) e regista-as em `logs/permissao-localizacao.txt`.
+4. Liga a localização do emulador e reenvia a posição de 3 em 3 segundos enquanto os testes correm (estado em `logs/localizacao.txt`).
+5. Corre `flutter test integration_test/app_test.dart` no emulador e guarda a saída em `logs/integration_test.log`. No fim, o registo do Android fica em `logs/logcat.txt`.
 
 ### Regras para escrever testes de sistema
 

@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Necessária para comunicar com a API do backend -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Posição do dispositivo, obtida uma única vez quando o utilizador a pede -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
         android:label="LocalHub"
         android:name="${applicationName}"

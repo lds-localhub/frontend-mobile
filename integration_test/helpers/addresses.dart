@@ -13,3 +13,10 @@ const Map<String, String> testAddresses = {
   'braga': 'Rua do Castelo Fictícia, 40, 4700-001 Braga',
   'aveiro': 'Rua da Ria Fictícia, 50, 3800-001 Aveiro',
 };
+
+/// Morada que o stub não conhece: o backend não a converte em coordenadas.
+const String unknownAddress = 'Rua Inexistente Fictícia, 1, 0000-000 Nenhures';
+
+/// `detail` do 400 do backend quando não converte a morada em coordenadas.
+const String addressNotFound =
+    'Não foi possível encontrar esta morada. Confirme-a.';

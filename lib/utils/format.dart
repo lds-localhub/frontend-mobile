@@ -11,6 +11,14 @@ String formatDateTime(String instant) => DateFormat(
   'pt_PT',
 ).format(DateTime.parse(instant).toLocal());
 
+/// Distância em quilómetros com uma casa decimal (ex.: `3,2 km`).
+String formatDistance(double distanceKm) =>
+    '${NumberFormat('0.0', 'pt_PT').format(distanceKm)} km';
+
+/// Classificação média com uma casa decimal (ex.: `4,6`).
+String formatAverageRating(double averageRating) =>
+    NumberFormat('0.0', 'pt_PT').format(averageRating);
+
 /// Data sem hora da API (`AAAA-MM-DD`) como `dd/mm/aaaa`.
 ///
 /// Formatada a partir do texto, sem passar por `DateTime`, para não mudar de

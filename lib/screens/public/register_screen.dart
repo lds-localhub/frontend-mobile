@@ -8,6 +8,7 @@ import 'package:localhub/theme/app_theme.dart';
 import 'package:localhub/utils/errors.dart';
 import 'package:localhub/utils/validators.dart';
 import 'package:localhub/widgets/ui/form_error_text.dart';
+import 'package:localhub/widgets/ui/labeled_field.dart';
 
 /// Registo de uma conta de Cliente ou de Prestador de Serviços (M02).
 class RegisterScreen extends StatefulWidget {
@@ -108,52 +109,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                TextFormField(
-                  key: const ValueKey('name'),
-                  controller: _name,
-                  decoration: const InputDecoration(labelText: 'Nome'),
-                  textInputAction: TextInputAction.next,
-                  textCapitalization: TextCapitalization.words,
-                  validator: all([
-                    notEmpty('Indique o nome.'),
-                    maxLength(100, 'O nome é demasiado longo.'),
-                  ]),
-                  forceErrorText: _serverErrors['name'],
-                  onChanged: (_) => _clearServerError('name'),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  key: const ValueKey('email'),
-                  controller: _email,
-                  decoration: const InputDecoration(labelText: 'E-mail'),
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  autocorrect: false,
-                  validator: all([
-                    notEmpty('Indique o e-mail.'),
-                    maxLength(254, 'O e-mail é demasiado longo.'),
-                    email('O e-mail não é válido.'),
-                  ]),
-                  forceErrorText: _serverErrors['email'],
-                  onChanged: (_) => _clearServerError('email'),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  key: const ValueKey('password'),
-                  controller: _password,
-                  decoration: const InputDecoration(
-                    labelText: 'Palavra-passe',
-                    helperText: 'Mínimo 8 caracteres, com letras e algarismos.',
+                LabeledField(
+                  label: 'Nome',
+                  child: TextFormField(
+                    key: const ValueKey('name'),
+                    controller: _name,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.words,
+                    validator: all([
+                      notEmpty('Indique o nome.'),
+                      maxLength(100, 'O nome é demasiado longo.'),
+                    ]),
+                    forceErrorText: _serverErrors['name'],
+                    onChanged: (_) => _clearServerError('name'),
                   ),
-                  obscureText: true,
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  validator: all([
-                    notEmpty('Indique a palavra-passe.'),
-                    password(),
-                  ]),
-                  forceErrorText: _serverErrors['password'],
-                  onChanged: (_) => _clearServerError('password'),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                LabeledField(
+                  label: 'E-mail',
+                  child: TextFormField(
+                    key: const ValueKey('email'),
+                    controller: _email,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    autocorrect: false,
+                    validator: all([
+                      notEmpty('Indique o e-mail.'),
+                      maxLength(254, 'O e-mail é demasiado longo.'),
+                      email('O e-mail não é válido.'),
+                    ]),
+                    forceErrorText: _serverErrors['email'],
+                    onChanged: (_) => _clearServerError('email'),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                LabeledField(
+                  label: 'Palavra-passe',
+                  child: TextFormField(
+                    key: const ValueKey('password'),
+                    controller: _password,
+                    decoration: const InputDecoration(
+                      helperText:
+                          'Mínimo 8 caracteres, com letras e algarismos.',
+                    ),
+                    obscureText: true,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    validator: all([
+                      notEmpty('Indique a palavra-passe.'),
+                      password(),
+                    ]),
+                    forceErrorText: _serverErrors['password'],
+                    onChanged: (_) => _clearServerError('password'),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text('Tipo de conta', style: theme.textTheme.titleSmall),
