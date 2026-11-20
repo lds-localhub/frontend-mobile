@@ -37,7 +37,10 @@ adb shell dumpsys package "$package" | grep -E 'ACCESS_(FINE|COARSE)_LOCATION: g
 adb shell cmd location set-location-enabled true
 ( while true; do adb emu geo fix -8.6110 41.1496; sleep 3; done ) > /dev/null 2>&1 &
 geo_fix_pid=$!
-trap 'kill "$geo_fix_pid" 2> /dev/null || true' EXIT
+# No fim, o registo do Android fica nas evidências (ex.: porque não chegou a posição)
+trap 'kill "$geo_fix_pid" 2> /dev/null || true; adb logcat -d -v time > logs/logcat.txt 2>&1 || true' EXIT
+sleep 5
+adb shell dumpsys location > logs/localizacao.txt 2>&1 || true
 
 # Entrada única dos testes de sistema, no emulador (-d), e não noutro dispositivo do runner
 # (ex.: Linux desktop); a saída fica nos registos (evidência)
