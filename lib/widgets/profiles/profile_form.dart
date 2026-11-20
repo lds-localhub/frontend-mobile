@@ -14,6 +14,7 @@ import 'package:localhub/widgets/location/current_position_button.dart';
 import 'package:localhub/widgets/profiles/category_selector.dart';
 import 'package:localhub/widgets/ui/error_state_view.dart';
 import 'package:localhub/widgets/ui/form_error_text.dart';
+import 'package:localhub/widgets/ui/labeled_field.dart';
 
 /// Formulário do perfil profissional, comum à criação (sem [initialValues]) e
 /// à edição: apresentação, contactos, experiência, categorias ativas, morada
@@ -169,79 +170,88 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const _SectionTitle('Sobre si'),
-            TextFormField(
-              key: const ValueKey('introduction'),
-              controller: _introduction,
-              decoration: const InputDecoration(
-                labelText: 'Apresentação',
-                hintText:
-                    'Ex.: Canalizadora com 10 anos de experiência em '
-                    'reparações domésticas.',
-                hintMaxLines: 3,
-              ),
-              minLines: 3,
-              maxLines: 6,
-              maxLength: 1000,
-              keyboardType: TextInputType.multiline,
-              validator: all([
-                notEmpty('Indique a apresentação.'),
-                maxLength(
-                  1000,
-                  'A apresentação tem, no máximo, 1000 caracteres.',
+            LabeledField(
+              label: 'Apresentação',
+              child: TextFormField(
+                key: const ValueKey('introduction'),
+                controller: _introduction,
+                decoration: const InputDecoration(
+                  hintText:
+                      'Ex.: Canalizadora com 10 anos de experiência em '
+                      'reparações domésticas.',
+                  hintMaxLines: 3,
                 ),
-              ]),
-              forceErrorText: _serverErrors['introduction'],
-              onChanged: (_) => _clearServerError('introduction'),
+                minLines: 3,
+                maxLines: 6,
+                maxLength: 1000,
+                keyboardType: TextInputType.multiline,
+                validator: all([
+                  notEmpty('Indique a apresentação.'),
+                  maxLength(
+                    1000,
+                    'A apresentação tem, no máximo, 1000 caracteres.',
+                  ),
+                ]),
+                forceErrorText: _serverErrors['introduction'],
+                onChanged: (_) => _clearServerError('introduction'),
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              key: const ValueKey('contactDetails'),
-              controller: _contactDetails,
-              decoration: const InputDecoration(
-                labelText: 'Contactos',
-                hintText:
-                    'Ex.: 912 345 678 (dias úteis, 8h–19h)\n'
-                    'ana.martins@exemplo.pt',
-                hintMaxLines: 3,
-                helperText:
-                    'Texto livre, visível para os Clientes no seu perfil.',
-                helperMaxLines: 2,
+            LabeledField(
+              label: 'Contactos',
+              child: TextFormField(
+                key: const ValueKey('contactDetails'),
+                controller: _contactDetails,
+                decoration: const InputDecoration(
+                  hintText:
+                      'Ex.: 912 345 678 (dias úteis, 8h–19h)\n'
+                      'ana.martins@exemplo.pt',
+                  hintMaxLines: 3,
+                  helperText:
+                      'Texto livre, visível para os Clientes no seu perfil.',
+                  helperMaxLines: 2,
+                ),
+                minLines: 2,
+                maxLines: 5,
+                maxLength: 500,
+                keyboardType: TextInputType.multiline,
+                validator: all([
+                  notEmpty('Indique os contactos.'),
+                  maxLength(
+                    500,
+                    'Os contactos têm, no máximo, 500 caracteres.',
+                  ),
+                ]),
+                forceErrorText: _serverErrors['contactDetails'],
+                onChanged: (_) => _clearServerError('contactDetails'),
               ),
-              minLines: 2,
-              maxLines: 5,
-              maxLength: 500,
-              keyboardType: TextInputType.multiline,
-              validator: all([
-                notEmpty('Indique os contactos.'),
-                maxLength(500, 'Os contactos têm, no máximo, 500 caracteres.'),
-              ]),
-              forceErrorText: _serverErrors['contactDetails'],
-              onChanged: (_) => _clearServerError('contactDetails'),
             ),
             const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              key: const ValueKey('experience'),
-              controller: _experience,
-              decoration: const InputDecoration(
-                labelText: 'Experiência',
-                hintText:
-                    'Ex.: 10 anos em canalização; obras em moradias e '
-                    'apartamentos.',
-                hintMaxLines: 3,
-              ),
-              minLines: 3,
-              maxLines: 6,
-              maxLength: 2000,
-              keyboardType: TextInputType.multiline,
-              validator: all([
-                notEmpty('Indique a experiência.'),
-                maxLength(
-                  2000,
-                  'A experiência tem, no máximo, 2000 caracteres.',
+            LabeledField(
+              label: 'Experiência',
+              child: TextFormField(
+                key: const ValueKey('experience'),
+                controller: _experience,
+                decoration: const InputDecoration(
+                  hintText:
+                      'Ex.: 10 anos em canalização; obras em moradias e '
+                      'apartamentos.',
+                  hintMaxLines: 3,
                 ),
-              ]),
-              forceErrorText: _serverErrors['experience'],
-              onChanged: (_) => _clearServerError('experience'),
+                minLines: 3,
+                maxLines: 6,
+                maxLength: 2000,
+                keyboardType: TextInputType.multiline,
+                validator: all([
+                  notEmpty('Indique a experiência.'),
+                  maxLength(
+                    2000,
+                    'A experiência tem, no máximo, 2000 caracteres.',
+                  ),
+                ]),
+                forceErrorText: _serverErrors['experience'],
+                onChanged: (_) => _clearServerError('experience'),
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             const _SectionTitle('Categorias'),
@@ -280,24 +290,26 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             ),
             const SizedBox(height: AppSpacing.lg),
             const _SectionTitle('Área de atuação'),
-            TextFormField(
-              key: const ValueKey('address'),
-              controller: _address,
-              decoration: InputDecoration(
-                labelText: 'Morada',
-                hintText: 'Rua, número, localidade',
-                // Erro da posição do dispositivo: não impede o envio de uma morada escrita à mão
-                errorText: _positionError,
-                errorMaxLines: 3,
+            LabeledField(
+              label: 'Morada',
+              child: TextFormField(
+                key: const ValueKey('address'),
+                controller: _address,
+                decoration: InputDecoration(
+                  hintText: 'Rua, número, localidade',
+                  // Erro da posição do dispositivo: não impede o envio de uma morada escrita à mão
+                  errorText: _positionError,
+                  errorMaxLines: 3,
+                ),
+                keyboardType: TextInputType.streetAddress,
+                textInputAction: TextInputAction.next,
+                validator: all([
+                  notEmpty('Indique a morada.'),
+                  maxLength(255, 'A morada tem, no máximo, 255 caracteres.'),
+                ]),
+                forceErrorText: _serverErrors['address'],
+                onChanged: (_) => _handleAddressChanged(),
               ),
-              keyboardType: TextInputType.streetAddress,
-              textInputAction: TextInputAction.next,
-              validator: all([
-                notEmpty('Indique a morada.'),
-                maxLength(255, 'A morada tem, no máximo, 255 caracteres.'),
-              ]),
-              forceErrorText: _serverErrors['address'],
-              onChanged: (_) => _handleAddressChanged(),
             ),
             CurrentPositionButton(
               controller: _address,
@@ -305,28 +317,30 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
               enabled: !_submitting,
             ),
             const SizedBox(height: AppSpacing.sm),
-            TextFormField(
-              key: const ValueKey('serviceRadiusKm'),
-              controller: _serviceRadiusKm,
-              decoration: const InputDecoration(
-                labelText: 'Raio de atuação',
-                hintText: '25',
-                suffixText: 'km',
-                helperText: 'Número inteiro de 1 a 100.',
-                errorMaxLines: 2,
-              ),
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              validator: all([
-                notEmpty('Indique o raio de atuação.'),
-                intRange(
-                  1,
-                  100,
-                  'O raio de atuação tem de estar entre 1 e 100 km.',
+            LabeledField(
+              label: 'Raio de atuação',
+              child: TextFormField(
+                key: const ValueKey('serviceRadiusKm'),
+                controller: _serviceRadiusKm,
+                decoration: const InputDecoration(
+                  hintText: '25',
+                  suffixText: 'km',
+                  helperText: 'Número inteiro de 1 a 100.',
+                  errorMaxLines: 2,
                 ),
-              ]),
-              forceErrorText: _serverErrors['serviceRadiusKm'],
-              onChanged: (_) => _clearServerError('serviceRadiusKm'),
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: all([
+                  notEmpty('Indique o raio de atuação.'),
+                  intRange(
+                    1,
+                    100,
+                    'O raio de atuação tem de estar entre 1 e 100 km.',
+                  ),
+                ]),
+                forceErrorText: _serverErrors['serviceRadiusKm'],
+                onChanged: (_) => _clearServerError('serviceRadiusKm'),
+              ),
             ),
             const SizedBox(height: AppSpacing.xl),
             FormErrorText(_generalError),
