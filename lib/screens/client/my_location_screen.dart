@@ -7,11 +7,9 @@ import 'package:localhub/data/locations.dart';
 import 'package:localhub/models/location.dart';
 import 'package:localhub/theme/app_theme.dart';
 import 'package:localhub/utils/errors.dart';
-import 'package:localhub/utils/validators.dart';
-import 'package:localhub/widgets/location/current_position_button.dart';
+import 'package:localhub/widgets/location/address_field.dart';
 import 'package:localhub/widgets/ui/form_error_text.dart';
 import 'package:localhub/widgets/ui/messages.dart';
-import 'package:localhub/widgets/ui/labeled_field.dart';
 
 /// Localização do Cliente, por endereço ou pela posição do dispositivo (M15).
 class MyLocationScreen extends ConsumerStatefulWidget {
@@ -133,34 +131,17 @@ class _MyLocationScreenState extends ConsumerState<MyLocationScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              LabeledField(
+                              AddressField(
                                 label: 'Endereço',
-                                child: TextFormField(
-                                  key: const ValueKey('address'),
-                                  controller: _address,
-                                  decoration: InputDecoration(
-                                    hintText: 'Rua, número, localidade',
-                                    // Erro da posição do dispositivo: não impede
-                                    // o envio de um endereço escrito à mão
-                                    errorText: _positionError,
-                                    errorMaxLines: 3,
-                                  ),
-                                  keyboardType: TextInputType.streetAddress,
-                                  validator: all([
-                                    notEmpty('Indique o endereço.'),
-                                    maxLength(
-                                      255,
-                                      'O endereço tem, no máximo, 255 '
-                                      'caracteres.',
-                                    ),
-                                  ]),
-                                  forceErrorText: _serverErrors['address'],
-                                  onChanged: (_) => _handleAddressChanged(),
-                                ),
-                              ),
-                              CurrentPositionButton(
+                                requiredMessage: 'Indique o endereço.',
+                                maxLengthMessage:
+                                    'O endereço tem, no máximo, 255 '
+                                    'caracteres.',
                                 controller: _address,
-                                onError: _handlePositionError,
+                                positionError: _positionError,
+                                serverError: _serverErrors['address'],
+                                onChanged: _handleAddressChanged,
+                                onPositionError: _handlePositionError,
                                 enabled: !_submitting,
                               ),
                               Text(

@@ -10,7 +10,7 @@ import 'package:localhub/models/profile.dart';
 import 'package:localhub/theme/app_theme.dart';
 import 'package:localhub/utils/errors.dart';
 import 'package:localhub/utils/validators.dart';
-import 'package:localhub/widgets/location/current_position_button.dart';
+import 'package:localhub/widgets/location/address_field.dart';
 import 'package:localhub/widgets/profiles/category_selector.dart';
 import 'package:localhub/widgets/ui/error_state_view.dart';
 import 'package:localhub/widgets/ui/form_error_text.dart';
@@ -312,31 +312,17 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             },
             const SizedBox(height: AppSpacing.lg),
             const _SectionTitle('Área de atuação'),
-            LabeledField(
+            AddressField(
               label: 'Morada',
-              child: TextFormField(
-                key: const ValueKey('address'),
-                focusNode: _focusNodes['address'],
-                controller: _address,
-                decoration: InputDecoration(
-                  hintText: 'Rua, número, localidade',
-                  // Erro da posição do dispositivo: não impede o envio de uma morada escrita à mão
-                  errorText: _positionError,
-                  errorMaxLines: 3,
-                ),
-                keyboardType: TextInputType.streetAddress,
-                textInputAction: TextInputAction.next,
-                validator: all([
-                  notEmpty('Indique a morada.'),
-                  maxLength(255, 'A morada tem, no máximo, 255 caracteres.'),
-                ]),
-                forceErrorText: _serverErrors['address'],
-                onChanged: (_) => _handleAddressChanged(),
-              ),
-            ),
-            CurrentPositionButton(
+              requiredMessage: 'Indique a morada.',
+              maxLengthMessage: 'A morada tem, no máximo, 255 caracteres.',
               controller: _address,
-              onError: _handlePositionError,
+              focusNode: _focusNodes['address'],
+              textInputAction: TextInputAction.next,
+              positionError: _positionError,
+              serverError: _serverErrors['address'],
+              onChanged: _handleAddressChanged,
+              onPositionError: _handlePositionError,
               enabled: !_submitting,
             ),
             const SizedBox(height: AppSpacing.sm),
