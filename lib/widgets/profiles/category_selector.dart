@@ -3,17 +3,14 @@ import 'package:material_ui/material_ui.dart';
 import 'package:localhub/models/category.dart';
 import 'package:localhub/theme/app_theme.dart';
 
-/// Etiquetas de seleção das categorias do perfil profissional.
-///
-/// Com [lockLastSelected], a etiqueta da única categoria selecionada fica
-/// desativada, porque o perfil não pode ficar sem categorias.
+/// Etiquetas de seleção das categorias do perfil profissional; as categorias
+/// desativadas aparecem com «(desativada)».
 class CategorySelector extends StatelessWidget {
   const CategorySelector({
     super.key,
     required this.categories,
     required this.selected,
     required this.onChanged,
-    this.lockLastSelected = false,
     this.enabled = true,
     this.errorText,
   });
@@ -21,7 +18,6 @@ class CategorySelector extends StatelessWidget {
   final List<Category> categories;
   final List<int> selected;
   final ValueChanged<List<int>> onChanged;
-  final bool lockLastSelected;
   final bool enabled;
   final String? errorText;
 
@@ -49,12 +45,10 @@ class CategorySelector extends StatelessWidget {
           children: [
             for (final category in categories)
               _CategoryChip(
-                label: category.name,
+                label: category.status == ActivationStatus.inactive
+                    ? '${category.name} (desativada)'
+                    : category.name,
                 selected: selected.contains(category.serviceCategoryId),
-                locked:
-                    lockLastSelected &&
-                    selected.length == 1 &&
-                    selected.first == category.serviceCategoryId,
                 onSelected: enabled
                     ? (isSelected) => _handleSelected(
                         category.serviceCategoryId,
@@ -80,13 +74,11 @@ class _CategoryChip extends StatelessWidget {
   const _CategoryChip({
     required this.label,
     required this.selected,
-    required this.locked,
     required this.onSelected,
   });
 
   final String label;
   final bool selected;
-  final bool locked;
   final ValueChanged<bool>? onSelected;
 
   @override
@@ -96,7 +88,7 @@ class _CategoryChip extends StatelessWidget {
     return FilterChip(
       label: Text(label),
       selected: selected,
-      onSelected: locked ? null : onSelected,
+      onSelected: onSelected,
       showCheckmark: true,
       checkmarkColor: colors.onPrimary,
       selectedColor: colors.primary,

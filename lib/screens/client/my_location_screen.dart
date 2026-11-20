@@ -139,7 +139,7 @@ class _MyLocationScreenState extends ConsumerState<MyLocationScreen> {
                                   key: const ValueKey('address'),
                                   controller: _address,
                                   decoration: InputDecoration(
-                                    hintText: 'Ex.: Rua de Santa Catarina 100',
+                                    hintText: 'Rua, número, localidade',
                                     // Erro da posição do dispositivo: não impede
                                     // o envio de um endereço escrito à mão
                                     errorText: _positionError,
@@ -165,7 +165,7 @@ class _MyLocationScreenState extends ConsumerState<MyLocationScreen> {
                               ),
                               Text(
                                 hasAddress
-                                    ? 'É a sua localização registada. Altere '
+                                    ? 'É a sua localização atual. Altere '
                                           'e guarde para a substituir.'
                                     : 'Ainda não definiu a sua localização. '
                                           'Indique um endereço e guarde.',

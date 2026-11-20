@@ -55,8 +55,6 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   String? _positionError;
   bool _submitting = false;
 
-  bool get _isEdit => widget.initialValues != null;
-
   @override
   void initState() {
     super.initState();
@@ -85,13 +83,24 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     super.dispose();
   }
 
-  // Só as categorias ainda ativas: uma categoria do perfil desativada entretanto
-  // não aparece nem é enviada
-  List<int> _activeSelection(List<Category> categories) => [
-    for (final category in categories)
-      if (_categoryIds.contains(category.serviceCategoryId))
-        category.serviceCategoryId,
-  ];
+  // Uma categoria do perfil desativada entretanto já não vem nas ativas, mas
+  // continua no perfil: aparece à mesma, para o Prestador a ver e a poder retirar
+  List<Category> _categoryOptions(List<Category> active) {
+    final activeIds = {
+      for (final category in active) category.serviceCategoryId,
+    };
+    return [
+      ...active,
+      for (final category
+          in widget.initialValues?.serviceCategories ?? const <CategoryRef>[])
+        if (!activeIds.contains(category.serviceCategoryId))
+          Category(
+            serviceCategoryId: category.serviceCategoryId,
+            name: category.name,
+            status: ActivationStatus.inactive,
+          ),
+    ];
+  }
 
   void _clearServerError(String field) {
     if (_serverErrors.containsKey(field)) {
@@ -117,7 +126,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     _clearServerError('serviceCategoryIds');
   }
 
-  Future<void> _handleSubmit(List<Category> categories) async {
+  Future<void> _handleSubmit() async {
     setState(() {
       _serverErrors = {};
       _generalError = null;
@@ -131,7 +140,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
       introduction: _introduction.text.trim(),
       contactDetails: _contactDetails.text.trim(),
       experience: _experience.text.trim(),
-      serviceCategoryIds: _activeSelection(categories),
+      serviceCategoryIds: _categoryIds,
       address: _address.text.trim(),
       serviceRadiusKm: int.parse(_serviceRadiusKm.text.trim()),
     );
@@ -156,7 +165,6 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final categories = ref.watch(categoriesProvider);
     final loadedCategories = categories.value;
 
@@ -177,7 +185,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
                 controller: _introduction,
                 decoration: const InputDecoration(
                   hintText:
-                      'Ex.: Canalizadora com 10 anos de experiência em '
+                      'Ex.: Canalizador com 10 anos de experiência em '
                       'reparações domésticas.',
                   hintMaxLines: 3,
                 ),
@@ -203,13 +211,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
                 key: const ValueKey('contactDetails'),
                 controller: _contactDetails,
                 decoration: const InputDecoration(
-                  hintText:
-                      'Ex.: 912 345 678 (dias úteis, 8h–19h)\n'
-                      'ana.martins@exemplo.pt',
-                  hintMaxLines: 3,
-                  helperText:
-                      'Texto livre, visível para os Clientes no seu perfil.',
-                  helperMaxLines: 2,
+                  hintText: 'Ex.: 912 345 678 (dias úteis, 8h–19h)',
                 ),
                 minLines: 2,
                 maxLines: 5,
@@ -228,14 +230,14 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             ),
             const SizedBox(height: AppSpacing.md),
             LabeledField(
-              label: 'Experiência',
+              label: 'Experiência profissional',
               child: TextFormField(
                 key: const ValueKey('experience'),
                 controller: _experience,
                 decoration: const InputDecoration(
                   hintText:
-                      'Ex.: 10 anos em canalização; obras em moradias e '
-                      'apartamentos.',
+                      'Ex.: 10 anos em canalização; reparação de fugas e '
+                      'substituição de torneiras.',
                   hintMaxLines: 3,
                 ),
                 minLines: 3,
@@ -258,14 +260,13 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             switch (categories) {
               AsyncValue(value: final items?) => FormField<void>(
                 key: const ValueKey('serviceCategoryIds'),
-                validator: (_) => _activeSelection(items).isEmpty
+                validator: (_) => _categoryIds.isEmpty
                     ? 'Indique pelo menos uma categoria de serviços.'
                     : null,
                 forceErrorText: _serverErrors['serviceCategoryIds'],
                 builder: (field) => CategorySelector(
-                  categories: items,
-                  selected: _activeSelection(items),
-                  lockLastSelected: _isEdit,
+                  categories: _categoryOptions(items),
+                  selected: _categoryIds,
                   enabled: !_submitting,
                   errorText: field.errorText,
                   onChanged: _handleCategoriesChanged,
@@ -280,14 +281,6 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
                 child: Center(child: CircularProgressIndicator()),
               ),
             },
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              _isEdit
-                  ? 'Pelo menos uma; só categorias ativas. Não é possível '
-                        'remover a única categoria.'
-                  : 'Escolha pelo menos uma.',
-              style: theme.textTheme.bodySmall,
-            ),
             const SizedBox(height: AppSpacing.lg),
             const _SectionTitle('Área de atuação'),
             LabeledField(
@@ -318,16 +311,11 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             ),
             const SizedBox(height: AppSpacing.sm),
             LabeledField(
-              label: 'Raio de atuação',
+              label: 'Raio de atuação (km)',
               child: TextFormField(
                 key: const ValueKey('serviceRadiusKm'),
                 controller: _serviceRadiusKm,
-                decoration: const InputDecoration(
-                  hintText: '25',
-                  suffixText: 'km',
-                  helperText: 'Número inteiro de 1 a 100.',
-                  errorMaxLines: 2,
-                ),
+                decoration: const InputDecoration(errorMaxLines: 2),
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: all([
@@ -348,7 +336,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
               // Sem as categorias carregadas não há como validar nem enviar a escolha
               onPressed: _submitting || loadedCategories == null
                   ? null
-                  : () => _handleSubmit(loadedCategories),
+                  : _handleSubmit,
               child: Text(widget.submitLabel),
             ),
             if (widget.onCancel != null) ...[
