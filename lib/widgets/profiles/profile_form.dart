@@ -83,24 +83,14 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     super.dispose();
   }
 
-  // Uma categoria do perfil desativada entretanto já não vem nas ativas, mas
-  // continua no perfil: aparece à mesma, para o Prestador a ver e a poder retirar
-  List<Category> _categoryOptions(List<Category> active) {
-    final activeIds = {
-      for (final category in active) category.serviceCategoryId,
-    };
-    return [
-      ...active,
-      for (final category
-          in widget.initialValues?.serviceCategories ?? const <CategoryRef>[])
-        if (!activeIds.contains(category.serviceCategoryId))
-          Category(
-            serviceCategoryId: category.serviceCategoryId,
-            name: category.name,
-            status: ActivationStatus.inactive,
-          ),
-    ];
-  }
+  // Só as categorias ativas: uma categoria do perfil desativada entretanto já não
+  // serve para pesquisas nem para novos serviços, por isso não aparece e sai do
+  // perfil ao guardar
+  List<int> _activeSelection(List<Category> active) => [
+    for (final category in active)
+      if (_categoryIds.contains(category.serviceCategoryId))
+        category.serviceCategoryId,
+  ];
 
   void _clearServerError(String field) {
     if (_serverErrors.containsKey(field)) {
@@ -126,7 +116,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
     _clearServerError('serviceCategoryIds');
   }
 
-  Future<void> _handleSubmit() async {
+  Future<void> _handleSubmit(List<Category> categories) async {
     setState(() {
       _serverErrors = {};
       _generalError = null;
@@ -140,7 +130,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
       introduction: _introduction.text.trim(),
       contactDetails: _contactDetails.text.trim(),
       experience: _experience.text.trim(),
-      serviceCategoryIds: _categoryIds,
+      serviceCategoryIds: _activeSelection(categories),
       address: _address.text.trim(),
       serviceRadiusKm: int.parse(_serviceRadiusKm.text.trim()),
     );
@@ -260,13 +250,13 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             switch (categories) {
               AsyncValue(value: final items?) => FormField<void>(
                 key: const ValueKey('serviceCategoryIds'),
-                validator: (_) => _categoryIds.isEmpty
+                validator: (_) => _activeSelection(items).isEmpty
                     ? 'Indique pelo menos uma categoria de serviços.'
                     : null,
                 forceErrorText: _serverErrors['serviceCategoryIds'],
                 builder: (field) => CategorySelector(
-                  categories: _categoryOptions(items),
-                  selected: _categoryIds,
+                  categories: items,
+                  selected: _activeSelection(items),
                   enabled: !_submitting,
                   errorText: field.errorText,
                   onChanged: _handleCategoriesChanged,
@@ -336,7 +326,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
               // Sem as categorias carregadas não há como validar nem enviar a escolha
               onPressed: _submitting || loadedCategories == null
                   ? null
-                  : _handleSubmit,
+                  : () => _handleSubmit(loadedCategories),
               child: Text(widget.submitLabel),
             ),
             if (widget.onCancel != null) ...[

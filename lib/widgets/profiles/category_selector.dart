@@ -3,8 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:localhub/models/category.dart';
 import 'package:localhub/theme/app_theme.dart';
 
-/// Etiquetas de seleção das categorias do perfil profissional; as categorias
-/// desativadas aparecem com «(desativada)».
+/// Etiquetas de seleção das categorias do perfil profissional.
 class CategorySelector extends StatelessWidget {
   const CategorySelector({
     super.key,
@@ -45,9 +44,7 @@ class CategorySelector extends StatelessWidget {
           children: [
             for (final category in categories)
               _CategoryChip(
-                label: category.status == ActivationStatus.inactive
-                    ? '${category.name} (desativada)'
-                    : category.name,
+                label: category.name,
                 selected: selected.contains(category.serviceCategoryId),
                 onSelected: enabled
                     ? (isSelected) => _handleSelected(
