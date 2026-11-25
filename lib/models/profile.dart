@@ -102,3 +102,74 @@ class ProfileInput {
     'serviceRadiusKm': serviceRadiusKm,
   };
 }
+
+/// Prestador resumido nas solicitações diretas e nas propostas de um serviço
+/// (E22).
+class ProviderRef {
+  const ProviderRef({
+    required this.professionalProfileId,
+    required this.name,
+    required this.averageRating,
+    required this.reviewCount,
+  });
+
+  factory ProviderRef.fromJson(Map<String, dynamic> json) => ProviderRef(
+    professionalProfileId: json['professionalProfileId'] as int,
+    name: json['name'] as String,
+    averageRating: (json['averageRating'] as num?)?.toDouble(),
+    reviewCount: json['reviewCount'] as int,
+  );
+
+  final int professionalProfileId;
+  final String name;
+  final double? averageRating;
+  final int reviewCount;
+}
+
+/// Prestador na pesquisa (E18), com a distância à localização de referência
+/// e se esta fica dentro do raio de atuação.
+class ProviderSearchItem {
+  const ProviderSearchItem({
+    required this.professionalProfileId,
+    required this.name,
+    required this.serviceCategories,
+    required this.averageRating,
+    required this.reviewCount,
+    required this.distanceKm,
+    required this.serviceRadiusKm,
+    required this.withinServiceRadius,
+  });
+
+  factory ProviderSearchItem.fromJson(Map<String, dynamic> json) =>
+      ProviderSearchItem(
+        professionalProfileId: json['professionalProfileId'] as int,
+        name: json['name'] as String,
+        serviceCategories: [
+          for (final category in json['serviceCategories'] as List)
+            CategoryRef.fromJson(category as Map<String, dynamic>),
+        ],
+        averageRating: (json['averageRating'] as num?)?.toDouble(),
+        reviewCount: json['reviewCount'] as int,
+        distanceKm: (json['distanceKm'] as num).toDouble(),
+        serviceRadiusKm: json['serviceRadiusKm'] as int,
+        withinServiceRadius: json['withinServiceRadius'] as bool,
+      );
+
+  final int professionalProfileId;
+  final String name;
+  final List<CategoryRef> serviceCategories;
+  final double? averageRating;
+  final int reviewCount;
+  final double distanceKm;
+  final int serviceRadiusKm;
+  final bool withinServiceRadius;
+}
+
+/// Parâmetros da pesquisa de Prestadores (E18); sem [address], o backend usa a
+/// localização registada do Cliente autenticado.
+typedef SearchProvidersParams = ({
+  int serviceCategoryId,
+  String? address,
+  String? name,
+  int page,
+});

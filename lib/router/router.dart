@@ -8,7 +8,10 @@ import 'package:localhub/models/user.dart';
 import 'package:localhub/screens/account/account_screen.dart';
 import 'package:localhub/screens/account/change_password_screen.dart';
 import 'package:localhub/screens/client/client_report_screen.dart';
+import 'package:localhub/screens/client/create_service_screen/create_service_screen.dart';
 import 'package:localhub/screens/client/my_location_screen.dart';
+import 'package:localhub/screens/client/provider_profile_screen.dart';
+import 'package:localhub/screens/client/service_detail_screen/service_detail_screen.dart';
 import 'package:localhub/screens/placeholder_screen.dart';
 import 'package:localhub/screens/provider/create_profile_screen.dart';
 import 'package:localhub/screens/provider/edit_profile_screen.dart';
@@ -17,7 +20,7 @@ import 'package:localhub/screens/provider/no_profile_screen.dart';
 import 'package:localhub/screens/provider/provider_report_screen.dart';
 import 'package:localhub/screens/public/login_screen.dart';
 import 'package:localhub/screens/public/not_found_screen.dart';
-import 'package:localhub/screens/public/provider_search_screen.dart';
+import 'package:localhub/screens/public/provider_search_screen/provider_search_screen.dart';
 import 'package:localhub/screens/public/register_screen.dart';
 import 'package:localhub/screens/public/starting_screen.dart';
 import 'package:localhub/screens/public/welcome_screen.dart';
@@ -97,9 +100,42 @@ String? guard(
   return null;
 }
 
-GoRoute _placeholder(String path, String title) => GoRoute(
+GoRoute _placeholder(
+  String path,
+  String title, {
+  List<RouteBase> routes = const [],
+}) => GoRoute(
   path: path,
   builder: (context, state) => PlaceholderScreen(title: title),
+  routes: routes,
+);
+
+/// Identificador numérico de um parâmetro da rota; um valor inválido abre a
+/// página de rota inexistente.
+Widget _withId(GoRouterState state, String name, Widget Function(int) build) {
+  final id = int.tryParse(state.pathParameters[name] ?? '');
+  return id == null ? const NotFoundScreen() : build(id);
+}
+
+/// Perfil do Prestador (M07), com a distância e a categoria da pesquisa de
+/// onde foi aberto (sem elas, depois de reiniciar, mostra só o raio), e as
+/// avaliações por baixo.
+GoRoute _providerProfileRoute({required bool fromSelection}) => GoRoute(
+  path: 'prestadores/:professionalProfileId',
+  builder: (context, state) =>
+      _withId(state, 'professionalProfileId', (professionalProfileId) {
+        final extra = state.extra;
+        final search = extra is ({double distanceKm, int? serviceCategoryId})
+            ? extra
+            : null;
+        return ProviderProfileScreen(
+          professionalProfileId: professionalProfileId,
+          distanceKm: search?.distanceKm,
+          serviceCategoryId: search?.serviceCategoryId,
+          fromSelection: fromSelection,
+        );
+      }),
+  routes: [_placeholder('avaliacoes', 'Avaliações')],
 );
 
 /// Rotas da aplicação, com as barras inferiores do Cliente e do Prestador.
@@ -164,14 +200,48 @@ final routerProvider = Provider<GoRouter>((ref) {
         branches: [
           StatefulShellBranch(
             routes: [
-              _placeholder('/cliente/pesquisa', 'Pesquisar Prestadores'),
+              GoRoute(
+                path: '/cliente/pesquisa',
+                builder: (context, state) => const ProviderSearchScreen(),
+                routes: [_providerProfileRoute(fromSelection: false)],
+              ),
             ],
           ),
           StatefulShellBranch(
-            routes: [_placeholder('/cliente/servicos', 'Os meus serviços')],
+            routes: [
+              _placeholder(
+                '/cliente/servicos',
+                'Os meus serviços',
+                routes: [
+                  GoRoute(
+                    path: ':serviceId',
+                    builder: (context, state) => _withId(
+                      state,
+                      'serviceId',
+                      (serviceId) => ServiceDetailScreen(serviceId: serviceId),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           StatefulShellBranch(
-            routes: [_placeholder('/cliente/criar', 'Criar serviço')],
+            routes: [
+              GoRoute(
+                path: '/cliente/criar',
+                builder: (context, state) {
+                  final query = state.uri.queryParameters;
+                  // Cada «Fazer solicitação direta» (endereço e marca no
+                  // extra) recomeça o formulário com esse Prestador
+                  return CreateServiceScreen(
+                    key: ValueKey((state.uri.query, state.extra)),
+                    providerId: int.tryParse(query['prestador'] ?? ''),
+                    categoryId: int.tryParse(query['categoria'] ?? ''),
+                  );
+                },
+                routes: [_providerProfileRoute(fromSelection: true)],
+              ),
+            ],
           ),
           StatefulShellBranch(
             routes: [
