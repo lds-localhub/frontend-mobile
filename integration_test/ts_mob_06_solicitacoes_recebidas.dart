@@ -14,6 +14,16 @@ Finder _statusInCard(String title, String status) => find.descendant(
   matching: find.text(status),
 );
 
+/// Abre o detalhe (M21) da solicitação com o título [title] e desliza até ao
+/// formulário da proposta.
+Future<void> _openDetail(WidgetTester tester, String title) async {
+  await tapText(tester, title);
+  await waitForText(tester, 'Solicitação de');
+  // O cabeçalho é alto e a lista só constrói o que está à vista: num ecrã
+  // pequeno, o formulário ainda não existe até se deslizar até ele
+  await scrollToText(tester, 'Apresentar proposta');
+}
+
 /// TS-MOB-06 — Responder a solicitações diretas (RF-F007-09, RF-F007-01,
 /// RF-F007-02; RNF-08).
 void tsMob06Tests() {
@@ -45,8 +55,7 @@ void tsMob06Tests() {
     );
 
     // 2. Tocar na primeira → M21 com o formulário da proposta
-    await tapText(tester, firstTitle);
-    await waitForText(tester, 'Apresentar proposta');
+    await _openDetail(tester, firstTitle);
 
     // 3. Valor 0 e as condições → «Enviar proposta» → erro junto ao valor,
     // sem pedido: o formulário continua aberto e não há mensagem de sucesso
@@ -61,8 +70,11 @@ void tsMob06Tests() {
     // «Proposta apresentada» e «Ver proposta» no lugar do formulário
     await fillField(tester, 'amount', '80,00');
     await tapText(tester, 'Enviar proposta');
+    // A mensagem só aparece depois de o detalhe ter sido atualizado
     await waitForText(tester, 'Proposta enviada.');
-    await waitForText(tester, 'Ver proposta');
+    await scrollToText(tester, 'Ver proposta');
+    expect(find.text('Ver proposta'), findsOneWidget);
+    await scrollToText(tester, 'Proposta apresentada', up: true);
     expect(find.text('Proposta apresentada'), findsOneWidget);
     expect(find.text('Apresentar proposta'), findsNothing);
 
@@ -83,14 +95,15 @@ void tsMob06Tests() {
     // 6. Tocar na segunda → «Recusar solicitação» → janela «Recusar
     // solicitação?» → «Confirmar» → «Solicitação recusada.» e «Recusou esta
     // solicitação a <data>.»
-    await tapText(tester, secondTitle);
-    await waitForText(tester, 'Apresentar proposta');
+    await _openDetail(tester, secondTitle);
     await tapText(tester, 'Recusar solicitação');
     expect(find.text('Recusar solicitação?'), findsOneWidget);
     await tapText(tester, 'Confirmar');
     await waitForText(tester, 'Solicitação recusada.');
     final today = formatDate(DateTime.now().toUtc().toIso8601String());
-    await waitForText(tester, 'Recusou esta solicitação a $today.');
+    final declined = 'Recusou esta solicitação a $today.';
+    await scrollToText(tester, declined);
+    expect(find.text(declined), findsOneWidget);
     expect(find.text('Recusar solicitação'), findsNothing);
   });
 }
