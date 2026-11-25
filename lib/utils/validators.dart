@@ -26,6 +26,27 @@ Validator intRange(int min, int max, String message) => (value) {
   return (number == null || number < min || number > max) ? message : null;
 };
 
+/// Valor em euros (E25): maior que 0, até 100 000,00 e com, no máximo, duas
+/// casas decimais; aceita a vírgula.
+Validator amount() => (value) {
+  final text = (value ?? '').trim();
+  if (!RegExp(r'^\d+([.,]\d{1,2})?$').hasMatch(text)) {
+    return 'Indique um valor com, no máximo, duas casas decimais.';
+  }
+  final number = parseAmount(text)!;
+  if (number <= 0) {
+    return 'O valor tem de ser maior que 0.';
+  }
+  if (number > 100000) {
+    return 'O valor não pode ser superior a 100 000,00 €.';
+  }
+  return null;
+};
+
+/// Converte o texto de um valor em euros (com vírgula ou ponto) para número.
+double? parseAmount(String text) =>
+    double.tryParse(text.trim().replaceAll(',', '.'));
+
 /// Formato simples de e-mail (texto, `@`, domínio com ponto); a validação
 /// final é do backend.
 Validator email(String message) =>

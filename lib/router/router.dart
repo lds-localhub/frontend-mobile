@@ -14,6 +14,8 @@ import 'package:localhub/screens/client/provider_profile_screen.dart';
 import 'package:localhub/screens/client/service_detail_screen/service_detail_screen.dart';
 import 'package:localhub/screens/placeholder_screen.dart';
 import 'package:localhub/screens/provider/create_profile_screen.dart';
+import 'package:localhub/screens/provider/direct_request_detail_screen/direct_request_detail_screen.dart';
+import 'package:localhub/screens/provider/direct_requests_screen/direct_requests_screen.dart';
 import 'package:localhub/screens/provider/edit_profile_screen.dart';
 import 'package:localhub/screens/provider/my_profile_screen.dart';
 import 'package:localhub/screens/provider/no_profile_screen.dart';
@@ -289,7 +291,28 @@ final routerProvider = Provider<GoRouter>((ref) {
         branches: [
           StatefulShellBranch(
             routes: [
-              _placeholder('/prestador/solicitacoes', 'Solicitações recebidas'),
+              GoRoute(
+                path: '/prestador/solicitacoes',
+                builder: (context, state) => const DirectRequestsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':directRequestId',
+                    builder: (context, state) {
+                      final id = int.tryParse(
+                        state.pathParameters['directRequestId']!,
+                      );
+                      return id == null
+                          ? const NotFoundScreen()
+                          : DirectRequestDetailScreen(directRequestId: id);
+                    },
+                    routes: [
+                      // Provisório: o ecrã da proposta enviada é da tarefa
+                      // das propostas do Prestador
+                      _placeholder('proposta/:proposalId', 'Proposta enviada'),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(

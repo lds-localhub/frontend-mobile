@@ -28,14 +28,17 @@ String formatDay(String day) {
   return '$date/$month/$year';
 }
 
-/// Disponibilidade pedida para um serviço: `13/10 a 19/10/2026` ou, com uma
-/// data única, `08/10/2026`.
-String formatAvailability(String startDate, String? endDate) {
-  if (endDate == null || endDate == startDate) {
-    return formatDay(startDate);
+/// Disponibilidade pedida (datas `AAAA-MM-DD`): uma data (`08/10/2026`) ou um
+/// intervalo (`13/10 a 19/10/2026`; com anos diferentes, as duas datas
+/// completas).
+String formatAvailability(String start, String? end) {
+  if (end == null || end == start) {
+    return formatDay(start);
   }
-  final [_, startMonth, startDay] = startDate.split('-');
-  return '$startDay/$startMonth a ${formatDay(endDate)}';
+  if (start.substring(0, 4) != end.substring(0, 4)) {
+    return '${formatDay(start)} a ${formatDay(end)}';
+  }
+  return '${formatDay(start).substring(0, 5)} a ${formatDay(end)}';
 }
 
 final _currency = NumberFormat.currency(

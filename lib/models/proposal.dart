@@ -16,3 +16,23 @@ enum ProposalStatus {
   static ProposalStatus fromJson(String value) =>
       values.firstWhere((s) => s.apiValue == value);
 }
+
+/// Corpo da apresentação de uma proposta (E25).
+class ProposalInput {
+  const ProposalInput({
+    required this.amount,
+    required this.conditions,
+    this.obs,
+  });
+
+  final double amount;
+  final String conditions;
+  final String? obs;
+
+  Map<String, Object?> toJson() => {
+    'amount': amount,
+    'conditions': conditions,
+    // A API exige pelo menos 1 caráter quando a observação é enviada
+    if (obs != null) 'obs': obs,
+  };
+}
