@@ -13,7 +13,13 @@ Future<void> chooseCategory(WidgetTester tester, String name) async {
     () => find.text('Escolha uma categoria').evaluate().isNotEmpty,
     description: 'o seletor de categorias',
   );
-  await tester.tap(find.text('Escolha uma categoria'));
+  // Toca no próprio seletor; num ecrã pequeno, desliza primeiro até ele
+  final dropdown = find.byWidgetPredicate(
+    (widget) => widget is DropdownButtonFormField<int?>,
+  );
+  await tester.ensureVisible(dropdown);
+  await tester.pumpAndSettle();
+  await tester.tap(dropdown);
   await tester.pumpAndSettle();
   await tester.tap(find.text(name).last);
   await tester.pumpAndSettle();

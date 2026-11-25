@@ -186,12 +186,14 @@ void tsMob04Tests() {
             .isNotEmpty,
         description: 'o Prestador da Maia nos resultados',
       );
-      await tester.tap(
-        find.descendant(
-          of: find.widgetWithText(ProviderOptionTile, providers.maia),
-          matching: find.byType(Checkbox),
-        ),
+      final checkbox = find.descendant(
+        of: find.widgetWithText(ProviderOptionTile, providers.maia),
+        matching: find.byType(Checkbox),
       );
+      // Num ecrã pequeno, os resultados ficam abaixo do que está à vista
+      await tester.ensureVisible(checkbox);
+      await tester.pumpAndSettle();
+      await tester.tap(checkbox);
       await tester.pumpAndSettle();
       await tapText(tester, 'Enviar solicitações (2)');
       await waitForText(tester, 'Serviço criado.');
