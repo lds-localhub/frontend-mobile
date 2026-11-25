@@ -79,7 +79,9 @@ void tsMob06Tests() {
     expect(find.text('Apresentar proposta'), findsNothing);
 
     // 5. Voltar ao M20 → o cartão da primeira passa a «Proposta apresentada»
-    await tester.pageBack();
+    // Seta ‹ do M21 (o pageBack procura a dica em inglês, «Back», e a
+    // aplicação está em português)
+    await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     await waitForLocation(tester, app, '/prestador/solicitacoes');
     await pumpUntil(
