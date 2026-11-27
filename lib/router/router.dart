@@ -231,13 +231,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/cliente/criar',
                 builder: (context, state) {
                   final query = state.uri.queryParameters;
+                  final providerParam = query['professionalProfileId'];
+                  final providerId = int.tryParse(providerParam ?? '');
                   // Cada «Fazer solicitação direta» (endereço e marca no
                   // extra) recomeça o formulário com esse Prestador
                   return CreateServiceScreen(
                     key: ValueKey((state.uri.query, state.extra)),
-                    providerId: int.tryParse(
-                      query['professionalProfileId'] ?? '',
-                    ),
+                    providerId: providerId,
+                    invalidProviderId:
+                        providerParam != null && providerId == null,
                     categoryId: int.tryParse(query['serviceCategoryId'] ?? ''),
                   );
                 },

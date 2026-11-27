@@ -43,11 +43,19 @@ const _detailFields = {
 /// «Prestadores», M17), no separador «Criar».
 ///
 /// Com [providerId] (vindo do perfil de um Prestador), começa em solicitação
-/// direta com esse Prestador já selecionado e a categoria [categoryId].
+/// direta com esse Prestador já selecionado e a categoria [categoryId]. Um ID
+/// inválido ([invalidProviderId]) ou de um Prestador que já não existe começa
+/// também em solicitação direta, sem ninguém selecionado e com um aviso.
 class CreateServiceScreen extends ConsumerStatefulWidget {
-  const CreateServiceScreen({super.key, this.providerId, this.categoryId});
+  const CreateServiceScreen({
+    super.key,
+    this.providerId,
+    this.invalidProviderId = false,
+    this.categoryId,
+  });
 
   final int? providerId;
+  final bool invalidProviderId;
   final int? categoryId;
 
   @override
@@ -66,17 +74,21 @@ class _CreateServiceScreenState extends ConsumerState<CreateServiceScreen> {
   Widget build(BuildContext context) {
     final providerId = widget.providerId;
     final registeredAddress = ref.watch(meProvider).value?.address;
-    Widget form(Profile? preselected) => _CreateServiceForm(
-      key: ValueKey(_resets),
-      preselected: preselected,
-      initialCategoryId: preselected == null ? null : widget.categoryId,
-      registeredAddress: registeredAddress,
-      onReset: _handleReset,
-    );
+    Widget form(Profile? preselected, {bool providerUnavailable = false}) =>
+        _CreateServiceForm(
+          key: ValueKey(_resets),
+          preselected: preselected,
+          providerUnavailable: providerUnavailable,
+          initialCategoryId: preselected == null ? null : widget.categoryId,
+          registeredAddress: registeredAddress,
+          onReset: _handleReset,
+        );
 
     final Widget body;
-    if (providerId == null || _resets > 0) {
+    if (_resets > 0) {
       body = form(null);
+    } else if (providerId == null) {
+      body = form(null, providerUnavailable: widget.invalidProviderId);
     } else {
       // O formulário só começa depois de chegar o perfil, para a seleção ter o nome certo
       final profile = ref.watch(profileProvider(providerId));
@@ -86,10 +98,14 @@ class _CreateServiceScreenState extends ConsumerState<CreateServiceScreen> {
         skipLoadingOnReload: true,
         skipError: true,
         loading: () => const LoadingView(),
-        error: (e, _) => ErrorStateView(
-          error: e,
-          onRetry: () => ref.invalidate(profileProvider(providerId)),
-        ),
+        // Um Prestador que já não existe não volta com «Tentar outra vez»: o
+        // formulário abre sem ele, com o mesmo aviso de um ID inválido
+        error: (e, _) => e is ApiError && e.status == 404
+            ? form(null, providerUnavailable: true)
+            : ErrorStateView(
+                error: e,
+                onRetry: () => ref.invalidate(profileProvider(providerId)),
+              ),
         data: form,
       );
     }
@@ -108,12 +124,14 @@ class _CreateServiceForm extends ConsumerStatefulWidget {
   const _CreateServiceForm({
     super.key,
     required this.preselected,
+    required this.providerUnavailable,
     required this.initialCategoryId,
     required this.registeredAddress,
     required this.onReset,
   });
 
   final Profile? preselected;
+  final bool providerUnavailable;
   final int? initialCategoryId;
   final String? registeredAddress;
   final VoidCallback onReset;
@@ -146,7 +164,7 @@ class _CreateServiceFormState extends ConsumerState<_CreateServiceForm> {
     super.initState();
     _location = TextEditingController(text: widget.registeredAddress ?? '');
     final preselected = widget.preselected;
-    _proposalModel = preselected == null
+    _proposalModel = preselected == null && !widget.providerUnavailable
         ? ProposalModel.public
         : ProposalModel.directRequest;
     _serviceCategoryId = widget.initialCategoryId;
@@ -384,6 +402,17 @@ class _CreateServiceFormState extends ConsumerState<_CreateServiceForm> {
           if (showPreselected && _tab == 0) ...[
             const SizedBox(height: AppSpacing.sm),
             _PreselectedBanner(name: preselected.name),
+          ],
+          if (widget.providerUnavailable &&
+              _isDirect &&
+              _providers.isEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'O Prestador indicado não existe ou já não está disponível.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
           ],
           const SizedBox(height: AppSpacing.md),
           // Os dois separadores ficam montados, para o envio validar todos os campos
