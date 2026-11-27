@@ -147,6 +147,9 @@ class _CreateServiceFormState extends ConsumerState<_CreateServiceForm> {
   final _description = TextEditingController();
   late final TextEditingController _location;
   var _autovalidateMode = AutovalidateMode.disabled;
+  // A falta de Prestadores só é assinalada depois de uma tentativa de envio,
+  // não logo ao abrir o separador com «Seguinte»
+  var _providersAutovalidateMode = AutovalidateMode.disabled;
   late ProposalModel _proposalModel;
   int? _serviceCategoryId;
   var _dateMode = DateMode.single;
@@ -248,6 +251,7 @@ class _CreateServiceFormState extends ConsumerState<_CreateServiceForm> {
       _serverErrors = {};
       _generalError = null;
       _autovalidateMode = AutovalidateMode.always;
+      _providersAutovalidateMode = AutovalidateMode.always;
     });
     final detailsValid = _detailsFormKey.currentState!.validate();
     final providersValid = _providersFormKey.currentState?.validate() ?? true;
@@ -460,7 +464,7 @@ class _CreateServiceFormState extends ConsumerState<_CreateServiceForm> {
               maintainState: true,
               child: Form(
                 key: _providersFormKey,
-                autovalidateMode: _autovalidateMode,
+                autovalidateMode: _providersAutovalidateMode,
                 child: FormField<void>(
                   validator: (_) => _providers.isEmpty
                       ? 'Selecione pelo menos um Prestador.'
