@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'package:localhub/api/api_client.dart';
 import 'package:localhub/data/auth.dart';
 import 'package:localhub/data/search.dart';
 import 'package:localhub/models/profile.dart';
@@ -21,6 +22,8 @@ import 'provider_result_card.dart';
 ///
 /// O Cliente começa com a morada registada; o Visitante indica um endereço ou
 /// usa a posição do dispositivo e, ao tocar num resultado, vai iniciar sessão.
+/// Uma morada que o backend não reconhece aparece no campo, e não nos
+/// resultados com «Tentar outra vez», que não a corrige.
 class ProviderSearchScreen extends ConsumerWidget {
   const ProviderSearchScreen({super.key});
 
@@ -127,7 +130,17 @@ class _ProviderSearchViewState extends ConsumerState<_ProviderSearchView> {
     ]);
   }
 
-  List<Widget> _buildResults(ThemeData theme) {
+  // Erro da morada na pesquisa feita, para mostrar no campo
+  String? _addressError() {
+    final params = _params;
+    if (params == null) {
+      return null;
+    }
+    final error = ref.watch(searchProvidersProvider(_page(params, 1))).error;
+    return error is ApiError ? (error.errors?['address'])?.first : null;
+  }
+
+  List<Widget> _buildResults(ThemeData theme, String? addressError) {
     final params = _params;
     if (params == null) {
       return const [
@@ -137,6 +150,10 @@ class _ProviderSearchViewState extends ConsumerState<_ProviderSearchView> {
               '«Pesquisar».',
         ),
       ];
+    }
+    // A morada recusada já aparece no campo
+    if (addressError != null) {
+      return const [];
     }
 
     final pages = [
@@ -203,6 +220,7 @@ class _ProviderSearchViewState extends ConsumerState<_ProviderSearchView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final addressError = _addressError();
 
     return Scaffold(
       appBar: AppBar(
@@ -257,13 +275,25 @@ class _ProviderSearchViewState extends ConsumerState<_ProviderSearchView> {
                             'O endereço tem, no máximo, 255 caracteres.',
                         controller: _address,
                         positionError: _positionError,
+                        serverError: addressError,
                         onChanged: () {
-                          if (_positionError != null) {
-                            setState(() => _positionError = null);
+                          // Mudar a morada recusada descarta essa pesquisa
+                          if (_positionError != null || addressError != null) {
+                            setState(() {
+                              _positionError = null;
+                              if (addressError != null) {
+                                _params = null;
+                              }
+                            });
                           }
                         },
-                        onPositionError: (error) =>
-                            setState(() => _positionError = error),
+                        // Usar a posição substitui a morada recusada
+                        onPositionError: (error) => setState(() {
+                          _positionError = error;
+                          if (addressError != null) {
+                            _params = null;
+                          }
+                        }),
                         textInputAction: TextInputAction.search,
                       ),
                       const SizedBox(height: AppSpacing.sm),
@@ -279,7 +309,7 @@ class _ProviderSearchViewState extends ConsumerState<_ProviderSearchView> {
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            ..._buildResults(theme),
+            ..._buildResults(theme, addressError),
             if (widget.isVisitor) ...[
               const SizedBox(height: AppSpacing.md),
               const _SignInBanner(),

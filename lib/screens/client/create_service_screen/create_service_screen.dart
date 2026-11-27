@@ -161,6 +161,9 @@ class _CreateServiceFormState extends ConsumerState<_CreateServiceForm> {
   var _serverErrors = <String, String>{};
   String? _generalError;
   String? _positionError;
+  // Morada recusada pela pesquisa dos Prestadores; fica à parte dos erros do
+  // envio, para cada um ser limpo só por quem o pôs
+  String? _locationSearchError;
 
   @override
   void initState() {
@@ -231,8 +234,11 @@ class _CreateServiceFormState extends ConsumerState<_CreateServiceForm> {
   }
 
   void _handleLocationChanged() {
-    if (_positionError != null) {
-      setState(() => _positionError = null);
+    if (_positionError != null || _locationSearchError != null) {
+      setState(() {
+        _positionError = null;
+        _locationSearchError = null;
+      });
     }
     _clearServerError('location');
   }
@@ -438,7 +444,10 @@ class _CreateServiceFormState extends ConsumerState<_CreateServiceForm> {
                     dateMode: _dateMode,
                     startDate: _startDate,
                     endDate: _endDate,
-                    serverErrors: _serverErrors,
+                    serverErrors: {
+                      'location': ?_locationSearchError,
+                      ..._serverErrors,
+                    },
                     positionError: _positionError,
                     enabled: !_submitting,
                     onCategoryChanged: (id) =>
@@ -451,8 +460,13 @@ class _CreateServiceFormState extends ConsumerState<_CreateServiceForm> {
                     onFieldChanged: (field) => field == 'location'
                         ? _handleLocationChanged()
                         : _clearServerError(field),
-                    onPositionError: (error) =>
-                        setState(() => _positionError = error),
+                    // Usar a posição substitui a morada escrita: os erros
+                    // sobre ela deixam de valer
+                    onPositionError: (error) => setState(() {
+                      _positionError = error;
+                      _locationSearchError = null;
+                      _serverErrors = {..._serverErrors}..remove('location');
+                    }),
                   ),
                 ),
               ),
@@ -477,6 +491,8 @@ class _CreateServiceFormState extends ConsumerState<_CreateServiceForm> {
                     errorText: field.errorText,
                     active: _tab == 1,
                     enabled: !_submitting,
+                    onLocationError: (error) =>
+                        setState(() => _locationSearchError = error),
                     onChanged: (providers) {
                       _handleProvidersChanged(providers);
                       field.didChange(null);

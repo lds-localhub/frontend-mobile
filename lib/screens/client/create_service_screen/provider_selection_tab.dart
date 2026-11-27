@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'package:localhub/api/api_client.dart';
 import 'package:localhub/data/categories.dart';
 import 'package:localhub/data/search.dart';
 import 'package:localhub/models/profile.dart';
@@ -20,6 +21,9 @@ import 'provider_option_tile.dart';
 /// Prestadores da categoria, pela distância ao local de realização, e a
 /// seleção, devolvida em [onChanged].
 ///
+/// Uma morada que o backend não reconhece é devolvida em [onLocationError],
+/// para aparecer no campo do local, e não aqui com «Tentar outra vez».
+///
 /// Só pesquisa enquanto está aberto ([active]): fechado, o local ainda pode
 /// estar a ser escrito no separador «Detalhes».
 class ProviderSelectionTab extends ConsumerStatefulWidget {
@@ -30,6 +34,7 @@ class ProviderSelectionTab extends ConsumerStatefulWidget {
     required this.selected,
     required this.onChanged,
     required this.active,
+    required this.onLocationError,
     this.errorText,
     this.enabled = true,
   });
@@ -40,6 +45,7 @@ class ProviderSelectionTab extends ConsumerStatefulWidget {
   final String? errorText;
   final ValueChanged<List<SelectedProvider>> onChanged;
   final bool active;
+  final ValueChanged<String> onLocationError;
   final bool enabled;
 
   @override
@@ -114,13 +120,27 @@ class _ProviderSelectionTabState extends ConsumerState<ProviderSelectionTab> {
     page: page,
   );
 
-  List<Widget> _buildResults(int categoryId, String location) {
+  static String? _addressError(Object? error) =>
+      error is ApiError ? (error.errors?['address'])?.first : null;
+
+  List<Widget> _buildResults(ThemeData theme, int categoryId, String location) {
     final pages = [
       for (var page = 1; page <= _pages; page++)
         ref.watch(searchProvidersProvider(_params(categoryId, location, page))),
     ];
     final first = pages.first;
     if (first.hasError && !first.isLoading) {
+      if (_addressError(first.error) != null) {
+        return [
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Text(
+              'Corrija o local de realização para pesquisar.',
+              style: theme.textTheme.bodyMedium,
+            ),
+          ),
+        ];
+      }
       return [
         ErrorStateView(
           error: first.error!,
@@ -187,6 +207,16 @@ class _ProviderSelectionTabState extends ConsumerState<ProviderSelectionTab> {
         .firstOrNull
         ?.name;
     final errorText = widget.errorText;
+    if (canSearch && widget.active) {
+      ref.listen(searchProvidersProvider(_params(categoryId, location, 1)), (
+        _,
+        next,
+      ) {
+        if (_addressError(next.error) case final error?) {
+          widget.onLocationError(error);
+        }
+      });
+    }
     final sectionStyle = theme.textTheme.labelLarge?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
       fontWeight: FontWeight.w700,
@@ -260,7 +290,7 @@ class _ProviderSelectionTabState extends ConsumerState<ProviderSelectionTab> {
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: _buildResults(categoryId, location),
+                children: _buildResults(theme, categoryId, location),
               ),
             ),
           ),
