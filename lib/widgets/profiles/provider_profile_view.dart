@@ -87,7 +87,7 @@ class ProviderProfileView extends ConsumerWidget {
               const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: () => context.go(
-                  '/cliente/criar?${toQueryString({'prestador': professionalProfileId, 'categoria': serviceCategoryId})}',
+                  '/cliente/criar?${toQueryString({'professionalProfileId': professionalProfileId, 'serviceCategoryId': serviceCategoryId})}',
                   // Cada pedido recomeça o formulário, mesmo com o endereço
                   // igual ao da última vez (ex.: depois de criar um serviço)
                   extra: Object(),

@@ -235,8 +235,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   // extra) recomeça o formulário com esse Prestador
                   return CreateServiceScreen(
                     key: ValueKey((state.uri.query, state.extra)),
-                    providerId: int.tryParse(query['prestador'] ?? ''),
-                    categoryId: int.tryParse(query['categoria'] ?? ''),
+                    providerId: int.tryParse(
+                      query['professionalProfileId'] ?? '',
+                    ),
+                    categoryId: int.tryParse(query['serviceCategoryId'] ?? ''),
                   );
                 },
                 routes: [_providerProfileRoute(fromSelection: true)],
