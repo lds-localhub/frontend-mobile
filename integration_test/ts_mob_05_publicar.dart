@@ -5,7 +5,7 @@ import 'helpers/addresses.dart';
 import 'helpers/app.dart';
 import 'helpers/create_service.dart';
 
-/// TS-MOB-05 — Publicar trabalho (RF-F010-01).
+/// TS-MOB-05 — Publicar trabalho
 void tsMob05Tests() {
   testWidgets('o Cliente cria um serviço aberto a propostas (RF-F010-01)', (
     tester,
@@ -14,7 +14,7 @@ void tsMob05Tests() {
     final app = await pumpApp(tester, token: client.token);
     await waitForLocation(tester, app, '/cliente/pesquisa');
 
-    // 1. Separador «Criar» → «Aberto a propostas» (M11) → formulário sem a
+    // 1. Separador «Criar» → «Aberto a propostas» → formulário sem a
     // escolha de Prestadores
     await tapText(tester, 'Criar');
     await waitForLocation(tester, app, '/cliente/criar');
@@ -23,7 +23,7 @@ void tsMob05Tests() {
     expect(find.text('Publicar serviço'), findsOneWidget);
 
     // 2. Título, categoria, descrição e disponibilidade → «Publicar serviço»
-    // → «Serviço criado.» e o detalhe (M12), aberto e sem propostas
+    // → «Serviço criado.» e o detalhe, aberto e sem propostas
     const title = 'Substituir o autoclismo';
     await fillField(tester, 'title', title);
     await chooseCategory(tester, 'Canalização');

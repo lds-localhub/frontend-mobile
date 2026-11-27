@@ -39,8 +39,8 @@ const _detailFields = {
   'requestedEndDate',
 };
 
-/// Criação de um serviço nas duas modalidades (M08, M11, com o separador
-/// «Prestadores», M17), no separador «Criar».
+/// Criação de um serviço, aberto a propostas ou por solicitação direta, no
+/// separador «Criar», com os separadores «Detalhes» e «Prestadores».
 ///
 /// Com [providerId] (vindo do perfil de um Prestador), começa em solicitação
 /// direta com esse Prestador já selecionado e a categoria [categoryId]. Um ID

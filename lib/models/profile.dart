@@ -103,8 +103,7 @@ class ProfileInput {
   };
 }
 
-/// Prestador resumido nas solicitações diretas e nas propostas de um serviço
-/// (E22).
+/// Prestador resumido nas solicitações diretas e nas propostas de um serviço.
 class ProviderRef {
   const ProviderRef({
     required this.professionalProfileId,
@@ -126,7 +125,7 @@ class ProviderRef {
   final int reviewCount;
 }
 
-/// Prestador na pesquisa (E18), com a distância à localização de referência
+/// Prestador na pesquisa, com a distância à localização de referência
 /// e se esta fica dentro do raio de atuação.
 class ProviderSearchItem {
   const ProviderSearchItem({
@@ -165,7 +164,7 @@ class ProviderSearchItem {
   final bool withinServiceRadius;
 }
 
-/// Parâmetros da pesquisa de Prestadores (E18); sem [address], o backend usa a
+/// Parâmetros da pesquisa de Prestadores; sem [address], o backend usa a
 /// localização registada do Cliente autenticado.
 typedef SearchProvidersParams = ({
   int serviceCategoryId,

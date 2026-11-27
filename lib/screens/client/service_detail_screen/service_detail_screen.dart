@@ -16,8 +16,8 @@ import 'direct_request_card.dart';
 import 'proposal_card.dart';
 import 'service_overview.dart';
 
-/// Detalhe de um serviço do Cliente, nas duas modalidades (M10 e M12): os
-/// dados, o histórico e as solicitações diretas ou as propostas.
+/// Detalhe de um serviço do Cliente, nas duas modalidades: os dados, o
+/// histórico e as solicitações diretas ou as propostas.
 ///
 /// Um serviço que não existe ou que é de outro Cliente mostra que não foi
 /// encontrado, com o caminho para a lista: «Tentar outra vez» não o resolve.

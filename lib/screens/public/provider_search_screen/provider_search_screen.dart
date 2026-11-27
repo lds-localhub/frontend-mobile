@@ -18,7 +18,7 @@ import 'package:localhub/widgets/ui/loading_view.dart';
 import 'provider_result_card.dart';
 
 /// Pesquisa de Prestadores por categoria e localização de referência, do
-/// Cliente (M05) e do Visitante (M05b).
+/// Cliente e do Visitante.
 ///
 /// O Cliente começa com a morada registada; o Visitante indica um endereço ou
 /// usa a posição do dispositivo e, ao tocar num resultado, vai iniciar sessão.

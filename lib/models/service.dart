@@ -51,7 +51,7 @@ class ServiceStatusChangeSummary {
   final Role changedByRole;
 }
 
-/// Alteração de estado de um serviço do Cliente, com quem a fez (E22).
+/// Alteração de estado de um serviço do Cliente, com quem a fez.
 class ServiceStatusChange extends ServiceStatusChangeSummary {
   const ServiceStatusChange({
     required super.previousStatus,
@@ -110,7 +110,7 @@ class ProposalSummary {
   final String? decisionDate;
 }
 
-/// Proposta recebida num serviço aberto a propostas, com o Prestador (E22).
+/// Proposta recebida num serviço aberto a propostas, com o Prestador.
 class ServiceProposal extends ProposalSummary {
   const ServiceProposal({
     required super.proposalId,
@@ -142,8 +142,7 @@ class ServiceProposal extends ProposalSummary {
   final ProviderRef professionalProfile;
 }
 
-/// Solicitação direta de um serviço, com o Prestador e a proposta associada
-/// (E22).
+/// Solicitação direta de um serviço, com o Prestador e a proposta associada.
 class ServiceDirectRequest {
   const ServiceDirectRequest({
     required this.directRequestId,
@@ -178,7 +177,7 @@ class ServiceDirectRequest {
   final ProposalSummary? proposal;
 }
 
-/// Detalhe de um serviço do Cliente (E22; também a resposta do E20).
+/// Detalhe de um serviço do Cliente, que é também a resposta da criação.
 class ServiceDetail {
   const ServiceDetail({
     required this.serviceId,
@@ -247,7 +246,7 @@ class ServiceDetail {
   final List<ServiceProposal> proposals;
 }
 
-/// Corpo da criação de um serviço (E20).
+/// Corpo da criação de um serviço.
 class CreateServiceInput {
   const CreateServiceInput({
     required this.proposalModel,

@@ -117,7 +117,7 @@ Widget _withId(GoRouterState state, String name, Widget Function(int) build) {
   return id == null ? const NotFoundScreen() : build(id);
 }
 
-/// Perfil do Prestador (M07), com a distância e a categoria da pesquisa de
+/// Perfil do Prestador, com a distância e a categoria da pesquisa de
 /// onde foi aberto (sem elas, depois de reiniciar, mostra só o raio), e as
 /// avaliações por baixo.
 GoRoute _providerProfileRoute({required bool fromSelection}) => GoRoute(

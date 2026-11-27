@@ -3,8 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'app.dart';
 
-// Passos comuns à pesquisa de Prestadores (M05/M05b) e ao criar serviço
-// (M08/M11/M17).
+// Passos comuns à pesquisa de Prestadores e ao criar serviço.
 
 /// Escolhe a categoria [name] no seletor de categorias do ecrã.
 Future<void> chooseCategory(WidgetTester tester, String name) async {

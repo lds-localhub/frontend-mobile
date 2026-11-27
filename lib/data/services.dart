@@ -5,7 +5,7 @@ import 'package:localhub/models/service.dart';
 
 import 'app_lifecycle.dart';
 
-/// Detalhe de um serviço do Cliente autenticado (E22).
+/// Detalhe de um serviço do Cliente autenticado.
 final serviceProvider = FutureProvider.autoDispose.family<ServiceDetail, int>((
   ref,
   serviceId,
@@ -15,7 +15,7 @@ final serviceProvider = FutureProvider.autoDispose.family<ServiceDetail, int>((
   return ServiceDetail.fromJson(json! as Map<String, dynamic>);
 });
 
-/// Cria um serviço (E20) e devolve-o, para abrir o seu detalhe.
+/// Cria um serviço e devolve-o, para abrir o seu detalhe.
 Future<ServiceDetail> createService(
   WidgetRef ref, {
   required CreateServiceInput body,

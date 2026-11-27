@@ -112,7 +112,7 @@ Future<TestAccount> registerAndLogin(String role, {String? prefix}) async {
 const String adminEmail = 'ana.almeida@localhub.test';
 const String adminPassword = 'Admin2026';
 
-/// E01 + E02 + E16: regista um Cliente, inicia sessão e define a localização
+/// Regista um Cliente, inicia sessão e define a localização
 /// com a morada [address].
 Future<TestAccount> registerClientWithLocation(String address) async {
   final client = await registerAndLogin('CLIENT');

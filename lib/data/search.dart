@@ -7,7 +7,7 @@ import 'package:localhub/models/profile.dart';
 import 'app_lifecycle.dart';
 
 /// Prestadores de uma categoria, do mais próximo ao mais distante da
-/// localização de referência (E18).
+/// localização de referência.
 final searchProvidersProvider = FutureProvider.autoDispose
     .family<Page<ProviderSearchItem>, SearchProvidersParams>((
       ref,

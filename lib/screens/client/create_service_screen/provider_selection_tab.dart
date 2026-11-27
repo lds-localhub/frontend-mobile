@@ -17,7 +17,7 @@ import 'package:localhub/widgets/ui/loading_view.dart';
 import 'create_service_screen.dart';
 import 'provider_option_tile.dart';
 
-/// Separador «Prestadores» do criar serviço (M17): pesquisa por nome dos
+/// Separador «Prestadores» do criar serviço: pesquisa por nome dos
 /// Prestadores da categoria, pela distância ao local de realização, e a
 /// seleção, devolvida em [onChanged].
 ///

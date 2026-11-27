@@ -9,8 +9,8 @@ import 'helpers/app.dart';
 import 'helpers/create_service.dart';
 import 'helpers/providers.dart';
 
-/// Morada da posição fixada no emulador, como o backend a compõe a partir do
-/// E35 («{rua} {número}, {código postal} {localidade}»).
+/// Morada da posição fixada no emulador, como o backend a compõe a partir das
+/// coordenadas («{rua} {número}, {código postal} {localidade}»).
 const _positionAddress = 'Rua das Flores Fictícia 12, 4050-001 Porto';
 
 const _positionUnavailable =
@@ -61,8 +61,6 @@ Future<void> _expectOrder(
 }
 
 /// TS-MOB-04 — Pesquisar prestadores e criar solicitações diretas
-/// (RF-F005-01, RF-F005-02, RF-F004-03, RF-F009-01, RF-F009-02, RF-F009-03,
-/// RF-F015-06).
 void tsMob04Tests() {
   testWidgets(
     'caso 1 — o Visitante pesquisa com a posição do dispositivo e, ao tocar '
@@ -71,7 +69,8 @@ void tsMob04Tests() {
       final providers = await _createProviders();
       final app = await pumpApp(tester);
 
-      // 1. No M01, «Pesquisar Prestadores» → M05b, com a barra do Visitante
+      // 1. Nas boas-vindas, «Pesquisar Prestadores» → pesquisa, com a barra do
+      // Visitante
       await tapText(tester, 'Pesquisar Prestadores');
       await waitForLocation(tester, app, '/pesquisa');
       expect(find.byType(NavigationBar), findsOneWidget);
@@ -87,7 +86,7 @@ void tsMob04Tests() {
       expect(find.textContaining('do mais próximo'), findsNothing);
 
       // 3. «Usar a minha posição atual» → o endereço fica com a morada da
-      // posição do emulador (E35)
+      // posição do emulador
       await tapText(tester, 'Usar a minha posição atual');
       await pumpUntil(
         tester,
@@ -114,7 +113,7 @@ void tsMob04Tests() {
         '9,6 km',
       );
 
-      // 5. Tocar num resultado → início de sessão (M03)
+      // 5. Tocar num resultado → início de sessão
       await tapText(tester, providers.maia);
       await waitForLocation(tester, app, '/login');
     },
@@ -129,7 +128,7 @@ void tsMob04Tests() {
       final client = await registerClientWithLocation(testAddresses['carla']!);
       final app = await pumpApp(tester, token: client.token);
 
-      // 1. Separador «Pesquisar» (M05) → o campo começa com a morada
+      // 1. Separador «Pesquisar» → o campo começa com a morada
       // registada → «Canalização» → «Pesquisar» → os dois por distância
       await waitForLocation(tester, app, '/cliente/pesquisa');
       expect(fieldText(tester, 'address'), testAddresses['carla']);
@@ -144,7 +143,7 @@ void tsMob04Tests() {
         '9,6 km',
       );
 
-      // 2. Tocar no Prestador de Vila Nova de Gaia → perfil (M07)
+      // 2. Tocar no Prestador de Vila Nova de Gaia → perfil
       await scrollToText(tester, providers.gaia, up: true);
       await tapText(tester, providers.gaia);
       await pumpUntil(
@@ -157,14 +156,15 @@ void tsMob04Tests() {
       await waitForText(tester, 'Apresentação');
       await scrollToText(tester, 'Fazer solicitação direta');
 
-      // 3. «Fazer solicitação direta» → M08 com esse Prestador selecionado
+      // 3. «Fazer solicitação direta» → criar serviço com esse Prestador
+      // selecionado
       await tapText(tester, 'Fazer solicitação direta');
       await waitForLocation(tester, app, '/cliente/criar');
       await waitForText(tester, 'Pedido iniciado no perfil de');
       expect(find.text('Prestadores (1)'), findsOneWidget);
 
       // 4. Juntar o Prestador da Maia, preencher e enviar → «Serviço
-      // criado.» e o detalhe (M10) com os dois Prestadores a aguardar
+      // criado.» e o detalhe com os dois Prestadores a aguardar
       const title = 'Reparar fuga na torneira';
       await fillField(tester, 'title', title);
       await fillField(

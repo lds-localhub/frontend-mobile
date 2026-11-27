@@ -4,7 +4,7 @@ import 'package:localhub/models/profile.dart';
 import 'package:localhub/theme/app_theme.dart';
 import 'package:localhub/utils/format.dart';
 
-/// Um Prestador nos resultados da seleção (M17): a caixa de seleção, a
+/// Um Prestador nos resultados da seleção de Prestadores: a caixa de seleção, a
 /// classificação, a distância, o raio e «Ver perfil».
 class ProviderOptionTile extends StatelessWidget {
   const ProviderOptionTile({
