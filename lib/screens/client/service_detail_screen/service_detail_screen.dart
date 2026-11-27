@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'package:localhub/api/api_client.dart';
 import 'package:localhub/data/auth.dart';
 import 'package:localhub/data/services.dart';
 import 'package:localhub/models/proposal.dart';
@@ -16,6 +18,9 @@ import 'service_overview.dart';
 
 /// Detalhe de um serviço do Cliente, nas duas modalidades (M10 e M12): os
 /// dados, o histórico e as solicitações diretas ou as propostas.
+///
+/// Um serviço que não existe ou que é de outro Cliente mostra que não foi
+/// encontrado, com o caminho para a lista: «Tentar outra vez» não o resolve.
 class ServiceDetailScreen extends ConsumerWidget {
   const ServiceDetailScreen({super.key, required this.serviceId});
 
@@ -71,10 +76,12 @@ class ServiceDetailScreen extends ConsumerWidget {
       body: service.when(
         skipLoadingOnReload: true,
         loading: () => const LoadingView(),
-        error: (e, _) => ErrorStateView(
-          error: e,
-          onRetry: () => ref.invalidate(serviceProvider(serviceId)),
-        ),
+        error: (e, _) => e is ApiError && (e.status == 404 || e.status == 403)
+            ? const _ServiceNotFound()
+            : ErrorStateView(
+                error: e,
+                onRetry: () => ref.invalidate(serviceProvider(serviceId)),
+              ),
         // Ao terminar sessão, o ecrã ainda é desenhado uma vez sem utilizador
         data: (data) => currentUserId == null
             ? const LoadingView()
@@ -92,6 +99,38 @@ class ServiceDetailScreen extends ConsumerWidget {
                   ],
                 ),
               ),
+      ),
+    );
+  }
+}
+
+class _ServiceNotFound extends StatelessWidget {
+  const _ServiceNotFound();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Serviço não encontrado', style: theme.textTheme.titleLarge),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'O serviço que procura não existe ou não é um dos seus serviços.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            OutlinedButton(
+              onPressed: () => context.go('/cliente/servicos'),
+              child: const Text('Os meus serviços'),
+            ),
+          ],
+        ),
       ),
     );
   }
