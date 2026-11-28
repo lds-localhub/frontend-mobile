@@ -31,12 +31,13 @@ Future<Map<String, dynamic>> _post(
 }
 
 /// Cria pela API um serviço do [client] com uma solicitação direta ao
-/// [provider]; sem [title], o título é único.
+/// [provider] e aos [otherProviders]; sem [title], o título é único.
 Future<int> createDirectRequestService(
   TestAccount client,
   TestProvider provider, {
   String categoryName = 'Canalização',
   String? title,
+  List<TestProvider> otherProviders = const [],
 }) async {
   final [categoryId] = await categoryIds([categoryName]);
   final body = await _post('/api/services', client.token, 201, {
@@ -46,7 +47,29 @@ Future<int> createDirectRequestService(
     'description': 'Serviço criado pelos testes de sistema.',
     'requestedStartDate': todayUtc(),
     'location': testAddresses['carla'],
-    'professionalProfileIds': [provider.professionalProfileId],
+    'professionalProfileIds': [
+      for (final p in [provider, ...otherProviders]) p.professionalProfileId,
+    ],
+  });
+  return body['serviceId'] as int;
+}
+
+/// Cria pela API um serviço do [client] aberto a propostas, no Porto; sem
+/// [title], o título é único.
+Future<int> createPublicService(
+  TestAccount client, {
+  String categoryName = 'Canalização',
+  String? title,
+}) async {
+  final [categoryId] = await categoryIds([categoryName]);
+  final body = await _post('/api/services', client.token, 201, {
+    'proposalModel': 'PUBLIC',
+    'serviceCategoryId': categoryId,
+    'title': title ?? 'Serviço ${uniqueId()}',
+    'description': 'Serviço criado pelos testes de sistema.',
+    'requestedStartDate': todayUtc(),
+    'location': testAddresses['carla'],
+    'professionalProfileIds': null,
   });
   return body['serviceId'] as int;
 }
