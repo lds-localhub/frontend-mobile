@@ -1,7 +1,6 @@
 import 'category.dart';
 import 'service.dart';
 import 'tone.dart';
-import 'user.dart';
 
 /// Estado de uma solicitação direta, com o texto e a cor apresentados.
 enum DirectRequestStatus {
@@ -80,33 +79,6 @@ class DirectRequestItem {
   final DirectRequestServiceRef service;
 }
 
-/// Alteração do estado de um serviço, vista pelo Prestador: só o papel de
-/// quem a fez, sem o nome.
-class ServiceStatusChange {
-  const ServiceStatusChange({
-    required this.previousStatus,
-    required this.newStatus,
-    required this.changedAt,
-    required this.changedByRole,
-  });
-
-  factory ServiceStatusChange.fromJson(Map<String, dynamic> json) =>
-      ServiceStatusChange(
-        previousStatus: switch (json['previousStatus']) {
-          final String value => ServiceStatus.fromJson(value),
-          _ => null,
-        },
-        newStatus: ServiceStatus.fromJson(json['newStatus'] as String),
-        changedAt: json['changedAt'] as String,
-        changedByRole: Role.fromJson(json['changedByRole'] as String),
-      );
-
-  final ServiceStatus? previousStatus;
-  final ServiceStatus newStatus;
-  final String changedAt;
-  final Role changedByRole;
-}
-
 /// Serviço de uma solicitação, no detalhe do Prestador (E36), sem os
 /// contactos do Cliente.
 class DirectRequestServiceDetail {
@@ -142,7 +114,7 @@ class DirectRequestServiceDetail {
         clientName: json['clientName'] as String,
         history: [
           for (final item in json['history'] as List)
-            ServiceStatusChange.fromJson(item as Map<String, dynamic>),
+            ServiceStatusChangeSummary.fromJson(item as Map<String, dynamic>),
         ],
       );
 
@@ -159,7 +131,7 @@ class DirectRequestServiceDetail {
   final ServiceStatus status;
   final String creationDate;
   final String clientName;
-  final List<ServiceStatusChange> history;
+  final List<ServiceStatusChangeSummary> history;
 }
 
 /// Detalhe de uma solicitação direta do Prestador (E36).
