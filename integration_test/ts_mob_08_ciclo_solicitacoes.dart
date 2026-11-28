@@ -36,7 +36,10 @@ void tsMob08Tests() {
     await waitForText(tester, title);
     await tapText(tester, title);
     await waitForLocation(tester, app, '/cliente/servicos/$serviceId');
-    await waitForText(tester, 'Solicitações (3)');
+    // O cartão de cima é alto e a lista só constrói o que está à vista: num
+    // ecrã pequeno, a secção das respostas ainda não existe até se deslizar
+    await waitForText(tester, title);
+    await scrollToText(tester, 'Solicitações (3)');
     await scrollToText(tester, declinedName);
     expect(inCard(declinedName, 'Pendente'), findsOneWidget);
     await scrollToText(tester, acceptedName);
