@@ -256,6 +256,94 @@ class ServiceDetail {
   final List<ServiceProposal> proposals;
 }
 
+/// Parâmetros da lista dos serviços do Cliente; sem [status], todos.
+typedef ServicesParams = ({ServiceStatus? status, int page});
+
+/// Prestador com a proposta aceite num serviço.
+class AssignedProviderRef {
+  const AssignedProviderRef({
+    required this.professionalProfileId,
+    required this.name,
+  });
+
+  factory AssignedProviderRef.fromJson(Map<String, dynamic> json) =>
+      AssignedProviderRef(
+        professionalProfileId: json['professionalProfileId'] as int,
+        name: json['name'] as String,
+      );
+
+  final int professionalProfileId;
+  final String name;
+}
+
+/// Serviço na lista do Cliente, igual nas duas modalidades.
+class ServiceItem {
+  const ServiceItem({
+    required this.serviceId,
+    required this.title,
+    required this.proposalModel,
+    required this.serviceCategory,
+    required this.status,
+    required this.creationDate,
+    required this.directRequestsCount,
+    required this.proposalsCount,
+    required this.pendingProposalsCount,
+    required this.assignedProvider,
+    required this.reviewed,
+  });
+
+  factory ServiceItem.fromJson(Map<String, dynamic> json) => ServiceItem(
+    serviceId: json['serviceId'] as int,
+    title: json['title'] as String,
+    proposalModel: ProposalModel.fromJson(json['proposalModel'] as String),
+    serviceCategory: CategoryRef.fromJson(
+      json['serviceCategory'] as Map<String, dynamic>,
+    ),
+    status: ServiceStatus.fromJson(json['status'] as String),
+    creationDate: json['creationDate'] as String,
+    directRequestsCount: json['directRequestsCount'] as int,
+    proposalsCount: json['proposalsCount'] as int,
+    pendingProposalsCount: json['pendingProposalsCount'] as int,
+    assignedProvider: switch (json['assignedProvider']) {
+      final Map<String, dynamic> provider => AssignedProviderRef.fromJson(
+        provider,
+      ),
+      _ => null,
+    },
+    reviewed: json['reviewed'] as bool,
+  );
+
+  final int serviceId;
+  final String title;
+  final ProposalModel proposalModel;
+  final CategoryRef serviceCategory;
+  final ServiceStatus status;
+  final String creationDate;
+
+  /// Solicitações diretas em qualquer estado; 0 num serviço aberto a
+  /// propostas.
+  final int directRequestsCount;
+
+  /// Propostas recebidas em qualquer estado.
+  final int proposalsCount;
+  final int pendingProposalsCount;
+  final AssignedProviderRef? assignedProvider;
+  final bool reviewed;
+}
+
+/// Corpo da avaliação de um serviço realizado; sem comentário, não é enviado.
+class ReviewInput {
+  const ReviewInput({required this.rating, this.comment});
+
+  final int rating;
+  final String? comment;
+
+  Map<String, Object?> toJson() => {
+    'rating': rating,
+    if (comment != null) 'comment': comment,
+  };
+}
+
 /// Corpo da criação de um serviço.
 class CreateServiceInput {
   const CreateServiceInput({
