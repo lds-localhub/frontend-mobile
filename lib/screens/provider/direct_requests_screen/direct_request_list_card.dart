@@ -38,7 +38,14 @@ class DirectRequestListCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(service.title, style: theme.textTheme.titleMedium),
+                    // Um título longo fica em duas linhas; o completo está no
+                    // detalhe
+                    Text(
+                      service.title,
+                      style: theme.textTheme.titleMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       '${service.clientName} · ${service.serviceCategory.name}',
