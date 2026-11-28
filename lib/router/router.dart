@@ -297,14 +297,13 @@ final routerProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: ':directRequestId',
-                    builder: (context, state) {
-                      final id = int.tryParse(
-                        state.pathParameters['directRequestId']!,
-                      );
-                      return id == null
-                          ? const NotFoundScreen()
-                          : DirectRequestDetailScreen(directRequestId: id);
-                    },
+                    builder: (context, state) => _withId(
+                      state,
+                      'directRequestId',
+                      (directRequestId) => DirectRequestDetailScreen(
+                        directRequestId: directRequestId,
+                      ),
+                    ),
                     routes: [
                       // Provisório: o ecrã da proposta enviada é da tarefa
                       // das propostas do Prestador
