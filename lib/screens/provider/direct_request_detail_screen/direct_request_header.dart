@@ -1,10 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 
 import 'package:localhub/models/direct_request.dart';
-import 'package:localhub/models/service.dart';
 import 'package:localhub/models/user.dart';
 import 'package:localhub/theme/app_theme.dart';
 import 'package:localhub/utils/format.dart';
+import 'package:localhub/widgets/services/service_history.dart';
+import 'package:localhub/widgets/services/service_meta.dart';
 import 'package:localhub/widgets/ui/initials_avatar.dart';
 import 'package:localhub/widgets/ui/status_chip.dart';
 
@@ -19,7 +20,6 @@ class DirectRequestHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final service = data.service;
-    final distance = service.distanceKm;
 
     return Card(
       child: Padding(
@@ -48,7 +48,7 @@ class DirectRequestHeader extends StatelessWidget {
             ),
             const Divider(height: AppSpacing.lg),
             Text(
-              '${service.serviceCategory.name} · ${service.title}',
+              '${service.serviceCategory.name} · «${service.title}»',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface,
                 fontWeight: FontWeight.w700,
@@ -71,18 +71,12 @@ class DirectRequestHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
-            _InfoLine(
-              icon: Icons.place_outlined,
-              text: distance == null
-                  ? service.location
-                  : '${service.location} (${formatDistance(distance)})',
+            ServiceMeta(
+              location: service.location,
+              distanceKm: service.distanceKm,
+              requestedStartDate: service.requestedStartDate,
+              requestedEndDate: service.requestedEndDate,
             ),
-            _InfoLine(
-              icon: Icons.calendar_today_outlined,
-              text:
-                  'Disponibilidade: ${formatAvailability(service.requestedStartDate, service.requestedEndDate)}',
-            ),
-            const SizedBox(height: AppSpacing.xs),
             Text(
               'Solicitação recebida a ${formatDate(data.creationDate)}',
               style: theme.textTheme.bodySmall,
@@ -105,92 +99,14 @@ class DirectRequestHeader extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            // A criação não vem no histórico, que só tem as alterações de estado
-            _HistoryEntry(
-              title: '${ServiceStatus.open.label} · Serviço criado',
-              subtitle:
-                  '${formatDate(service.creationDate)} · ${service.clientName} (Cliente)',
+            ServiceHistory(
+              history: service.history,
+              createdAt: service.creationDate,
+              viewerRole: Role.provider,
+              clientName: service.clientName,
             ),
-            for (final change in service.history)
-              _HistoryEntry(
-                title: change.newStatus.label,
-                // O Prestador não vê o nome de quem fez a alteração do lado do
-                // Prestador: pode ter sido o Prestador contratado e não ele
-                subtitle:
-                    '${formatDate(change.changedAt)} · '
-                    '${change.changedByRole == Role.client ? '${service.clientName} (Cliente)' : 'Prestador'}',
-              ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _InfoLine extends StatelessWidget {
-  const _InfoLine({required this.icon, required this.text});
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.xs),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: theme.colorScheme.onSurfaceVariant),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
-        ],
-      ),
-    );
-  }
-}
-
-class _HistoryEntry extends StatelessWidget {
-  const _HistoryEntry({required this.title, required this.subtitle});
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Icon(
-              Icons.circle,
-              size: 10,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(subtitle, style: theme.textTheme.bodySmall),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
