@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'package:localhub/api/api_client.dart';
 import 'package:localhub/data/direct_requests.dart';
 import 'package:localhub/data/proposals.dart';
 import 'package:localhub/models/direct_request.dart';
@@ -100,11 +101,16 @@ class _DirectRequestDetailScreenState
       body: request.when(
         skipLoadingOnReload: true,
         loading: () => const LoadingView(),
-        error: (e, _) => ErrorStateView(
-          error: e,
-          onRetry: () =>
-              ref.invalidate(directRequestProvider(widget.directRequestId)),
-        ),
+        // Uma solicitação que não existe ou que não é deste Prestador não volta
+        // com «Tentar outra vez»
+        error: (e, _) => e is ApiError && e.status == 404
+            ? const _RequestNotFound()
+            : ErrorStateView(
+                error: e,
+                onRetry: () => ref.invalidate(
+                  directRequestProvider(widget.directRequestId),
+                ),
+              ),
         data: (data) {
           // O backend só aceita a resposta a uma solicitação pendente de um
           // serviço que ainda está aberto
@@ -178,6 +184,41 @@ class _Notice extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
         ],
+      ),
+    );
+  }
+}
+
+class _RequestNotFound extends StatelessWidget {
+  const _RequestNotFound();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Solicitação não encontrada',
+              style: theme.textTheme.titleLarge,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'A solicitação que procura não existe.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            OutlinedButton(
+              onPressed: () => context.go('/prestador/solicitacoes'),
+              child: const Text('Voltar às solicitações'),
+            ),
+          ],
+        ),
       ),
     );
   }
