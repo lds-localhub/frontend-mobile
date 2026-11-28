@@ -10,7 +10,9 @@ import 'package:localhub/screens/account/change_password_screen.dart';
 import 'package:localhub/screens/client/client_report_screen.dart';
 import 'package:localhub/screens/client/create_service_screen/create_service_screen.dart';
 import 'package:localhub/screens/client/my_location_screen.dart';
+import 'package:localhub/screens/client/my_services_screen/my_services_screen.dart';
 import 'package:localhub/screens/client/provider_profile_screen.dart';
+import 'package:localhub/screens/client/review_service_screen/review_service_screen.dart';
 import 'package:localhub/screens/client/service_detail_screen/service_detail_screen.dart';
 import 'package:localhub/screens/placeholder_screen.dart';
 import 'package:localhub/screens/provider/create_profile_screen.dart';
@@ -211,9 +213,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              _placeholder(
-                '/cliente/servicos',
-                'Os meus serviços',
+              GoRoute(
+                path: '/cliente/servicos',
+                builder: (context, state) => const MyServicesScreen(),
                 routes: [
                   GoRoute(
                     path: ':serviceId',
@@ -222,6 +224,17 @@ final routerProvider = Provider<GoRouter>((ref) {
                       'serviceId',
                       (serviceId) => ServiceDetailScreen(serviceId: serviceId),
                     ),
+                    routes: [
+                      GoRoute(
+                        path: 'avaliar',
+                        builder: (context, state) => _withId(
+                          state,
+                          'serviceId',
+                          (serviceId) =>
+                              ReviewServiceScreen(serviceId: serviceId),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

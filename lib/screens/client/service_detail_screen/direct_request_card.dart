@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import 'package:localhub/models/direct_request.dart';
+import 'package:localhub/models/proposal.dart';
 import 'package:localhub/models/service.dart';
 import 'package:localhub/theme/app_theme.dart';
 import 'package:localhub/utils/format.dart';
@@ -9,13 +10,18 @@ import 'package:localhub/widgets/ui/initials_avatar.dart';
 import 'package:localhub/widgets/ui/rating_text.dart';
 import 'package:localhub/widgets/ui/status_chip.dart';
 
+import 'proposal_decision.dart';
+
 /// Uma solicitação direta do serviço: o Prestador, o estado, as datas e a
-/// proposta ou, sem proposta, a frase do estado.
+/// proposta ou, sem proposta, a frase do estado. Com a proposta pendente e o
+/// serviço aberto ([decision]), «Aceitar» e «Recusar».
 class DirectRequestCard extends StatelessWidget {
   const DirectRequestCard({
     super.key,
     required this.request,
     this.acceptedProviderName,
+    this.voidedByCancellationAt,
+    this.decision,
   });
 
   final ServiceDirectRequest request;
@@ -23,6 +29,27 @@ class DirectRequestCard extends StatelessWidget {
   /// Prestador com a proposta aceite no serviço, para explicar porque a
   /// solicitação ficou sem efeito.
   final String? acceptedProviderName;
+
+  /// Data do cancelamento, se o serviço foi cancelado ainda aberto.
+  final String? voidedByCancellationAt;
+
+  /// Só com o serviço aberto.
+  final ProposalDecisionHandlers? decision;
+
+  // Ao lado do estado da proposta: quando foi aceite ou quando ficou sem efeito
+  // por causa do cancelamento
+  String? _statusNote(ProposalSummary proposal) {
+    final decisionDate = proposal.decisionDate;
+    final cancelledAt = voidedByCancellationAt;
+    if (proposal.status == ProposalStatus.accepted && decisionDate != null) {
+      return 'Aceite a ${formatDate(decisionDate)}';
+    }
+    if (proposal.status == ProposalStatus.voided && cancelledAt != null) {
+      return 'Sem efeito a ${formatDate(decisionDate ?? cancelledAt)} '
+          '(serviço cancelado)';
+    }
+    return null;
+  }
 
   String get _statusText => switch (request.status) {
     DirectRequestStatus.pending => 'A aguardar resposta do Prestador.',
@@ -42,6 +69,8 @@ class DirectRequestCard extends StatelessWidget {
     final provider = request.professionalProfile;
     final proposal = request.proposal;
     final responseDate = request.responseDate;
+    final decision = this.decision;
+    final statusNote = proposal == null ? null : _statusNote(proposal);
 
     return Card(
       child: Padding(
@@ -106,10 +135,19 @@ class DirectRequestCard extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (statusNote != null)
+                      Text(statusNote, style: theme.textTheme.bodySmall),
                     const SizedBox(height: AppSpacing.sm),
                     ProposalTerms(proposal: proposal),
                   ],
                 ),
+              ),
+            if (decision != null &&
+                proposal != null &&
+                proposal.status == ProposalStatus.pending)
+              ProposalDecision(
+                proposalId: proposal.proposalId,
+                handlers: decision,
               ),
           ],
         ),

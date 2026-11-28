@@ -15,6 +15,9 @@ import 'ts_mob_03_perfil.dart';
 import 'ts_mob_04_pesquisa_solicitacao.dart';
 import 'ts_mob_05_publicar.dart';
 import 'ts_mob_06_solicitacoes_recebidas.dart';
+import 'ts_mob_08_ciclo_solicitacoes.dart';
+import 'ts_mob_09_ciclo_publicado.dart';
+import 'ts_mob_10_cancelar_cliente.dart';
 import 'ts_mob_11_relatorio_cliente.dart';
 import 'ts_mob_12_relatorio_prestador.dart';
 import 'ts_mob_13_palavra_passe.dart';
@@ -37,6 +40,12 @@ void main() {
   );
   group('TS-MOB-05 — Publicar trabalho', tsMob05Tests);
   group('TS-MOB-06 — Responder a solicitações diretas', tsMob06Tests);
+  group(
+    'TS-MOB-08 — Ciclo de um serviço com solicitações diretas',
+    tsMob08Tests,
+  );
+  group('TS-MOB-09 — Ciclo de um trabalho publicado', tsMob09Tests);
+  group('TS-MOB-10 — Cancelar serviços (Cliente)', tsMob10Tests);
   group('TS-MOB-11 — Relatório do cliente', tsMob11Tests);
   group('TS-MOB-12 — Relatório do prestador', tsMob12Tests);
   group('TS-MOB-13 — Alterar a palavra-passe', tsMob13Tests);

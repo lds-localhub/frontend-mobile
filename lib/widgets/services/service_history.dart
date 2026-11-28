@@ -18,6 +18,7 @@ class ServiceHistory extends StatelessWidget {
     required this.viewerRole,
     this.currentUserId,
     this.clientName,
+    this.acceptedProviderName,
   });
 
   final List<ServiceStatusChangeSummary> history;
@@ -25,6 +26,17 @@ class ServiceHistory extends StatelessWidget {
   final Role viewerRole;
   final int? currentUserId;
   final String? clientName;
+
+  /// Prestador da proposta aceite, para mostrar de quem é a proposta aceite na
+  /// passagem a atribuído.
+  final String? acceptedProviderName;
+
+  String _titleOf(ServiceStatusChangeSummary change) {
+    final accepted = acceptedProviderName;
+    return change.newStatus == ServiceStatus.assigned && accepted != null
+        ? '${change.newStatus.label} · Proposta de $accepted aceite'
+        : change.newStatus.label;
+  }
 
   String get _creatorText {
     final name = clientName ?? '';
@@ -62,7 +74,7 @@ class ServiceHistory extends StatelessWidget {
         ),
         for (final change in history)
           _HistoryLine(
-            title: change.newStatus.label,
+            title: _titleOf(change),
             subtitle:
                 '${formatDate(change.changedAt)} · ${_authorText(change)}',
           ),
