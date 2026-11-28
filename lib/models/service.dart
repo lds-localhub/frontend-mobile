@@ -254,6 +254,21 @@ class ServiceDetail {
   final List<ServiceStatusChange> history;
   final List<ServiceDirectRequest> directRequests;
   final List<ServiceProposal> proposals;
+
+  /// Prestador da proposta aceite, numa ou noutra modalidade, se houver.
+  String? get acceptedProviderName {
+    for (final request in directRequests) {
+      if (request.proposal?.status == ProposalStatus.accepted) {
+        return request.professionalProfile.name;
+      }
+    }
+    for (final proposal in proposals) {
+      if (proposal.status == ProposalStatus.accepted) {
+        return proposal.professionalProfile.name;
+      }
+    }
+    return null;
+  }
 }
 
 /// Parâmetros da lista dos serviços do Cliente; sem [status], todos.

@@ -5,7 +5,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:localhub/api/api_client.dart';
 import 'package:localhub/data/auth.dart';
 import 'package:localhub/data/services.dart';
-import 'package:localhub/models/proposal.dart';
 import 'package:localhub/models/service.dart';
 import 'package:localhub/theme/app_theme.dart';
 import 'package:localhub/utils/errors.dart';
@@ -20,22 +19,6 @@ import 'direct_request_card.dart';
 import 'proposal_card.dart';
 import 'proposal_decision.dart';
 import 'service_overview.dart';
-
-/// Prestador da proposta aceite, numa ou noutra modalidade (para o histórico e
-/// para as solicitações que ficaram sem efeito por causa dela).
-String? _acceptedProviderOf(ServiceDetail service) {
-  for (final request in service.directRequests) {
-    if (request.proposal?.status == ProposalStatus.accepted) {
-      return request.professionalProfile.name;
-    }
-  }
-  for (final proposal in service.proposals) {
-    if (proposal.status == ProposalStatus.accepted) {
-      return proposal.professionalProfile.name;
-    }
-  }
-  return null;
-}
 
 /// Nome do Prestador de uma proposta, para a confirmação.
 String _providerOfProposal(ServiceDetail service, int proposalId) {
@@ -238,7 +221,7 @@ class _ServiceDetailScreenState extends ConsumerState<ServiceDetailScreen> {
           if (currentUserId == null) {
             return const LoadingView();
           }
-          final acceptedProviderName = _acceptedProviderOf(data);
+          final acceptedProviderName = data.acceptedProviderName;
           // As ações ficam desativadas enquanto uma decorre ou o detalhe
           // atualiza
           final enabled = !_busy && !service.isLoading;
