@@ -40,11 +40,11 @@ void tsMob08Tests() {
     // ecrã pequeno, a secção das respostas ainda não existe até se deslizar
     await waitForText(tester, title);
     await scrollToText(tester, 'Solicitações (3)');
-    await scrollToText(tester, declinedName);
+    await scrollToCard(tester, declinedName);
     expect(inCard(declinedName, 'Pendente'), findsOneWidget);
-    await scrollToText(tester, acceptedName);
+    await scrollToCard(tester, acceptedName);
     expect(inCard(acceptedName, 'Pendente'), findsOneWidget);
-    await scrollToText(tester, silentName);
+    await scrollToCard(tester, silentName);
     expect(
       inCard(silentName, 'A aguardar resposta do Prestador.'),
       findsOneWidget,

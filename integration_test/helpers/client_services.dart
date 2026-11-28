@@ -19,6 +19,20 @@ Finder inCard(String cardText, String text) => find.descendant(
   matching: find.text(text),
 );
 
+/// Desliza até ao cartão com o texto [cardText], que pode estar acima ou
+/// abaixo do que está à vista (ex.: depois de ver o último cartão da lista).
+Future<void> scrollToCard(WidgetTester tester, String cardText) async {
+  if (find.text(cardText).evaluate().isEmpty) {
+    try {
+      await scrollToText(tester, cardText, up: true);
+    } on StateError {
+      // Chegou ao topo sem o encontrar: está abaixo
+      await scrollToText(tester, cardText);
+    }
+  }
+  await scrollToText(tester, cardText);
+}
+
 /// Desliza até ao cartão com o texto [cardText] e toca em [label] dentro dele.
 Future<void> tapInCard(
   WidgetTester tester,
@@ -33,7 +47,7 @@ Future<void> tapInCard(
       description: 'a mensagem fechar',
     );
   }
-  await scrollToText(tester, cardText);
+  await scrollToCard(tester, cardText);
   final finder = inCard(cardText, label);
   await tester.ensureVisible(finder);
   await tester.pumpAndSettle();

@@ -33,9 +33,9 @@ void tsMob09Tests() {
     // ecrã pequeno, a secção das respostas ainda não existe até se deslizar
     await waitForText(tester, title);
     await scrollToText(tester, 'Propostas (2)');
-    await scrollToText(tester, declinedName);
+    await scrollToCard(tester, declinedName);
     expect(inCard(declinedName, 'Pendente'), findsOneWidget);
-    await scrollToText(tester, acceptedName);
+    await scrollToCard(tester, acceptedName);
     expect(inCard(acceptedName, 'Pendente'), findsOneWidget);
 
     // 2. «Recusar» numa → «Recusar proposta?» → «Confirmar»
