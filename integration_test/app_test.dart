@@ -12,6 +12,8 @@ import 'pipeline_example.dart';
 import 'ts_mob_01_registo_sessao.dart';
 import 'ts_mob_02_acesso.dart';
 import 'ts_mob_03_perfil.dart';
+import 'ts_mob_04_pesquisa_solicitacao.dart';
+import 'ts_mob_05_publicar.dart';
 import 'ts_mob_11_relatorio_cliente.dart';
 import 'ts_mob_12_relatorio_prestador.dart';
 import 'ts_mob_13_palavra_passe.dart';
@@ -28,6 +30,11 @@ void main() {
     'TS-MOB-03 — Criar, consultar e editar o perfil profissional',
     tsMob03Tests,
   );
+  group(
+    'TS-MOB-04 — Pesquisar prestadores e criar solicitações diretas',
+    tsMob04Tests,
+  );
+  group('TS-MOB-05 — Publicar trabalho', tsMob05Tests);
   group('TS-MOB-11 — Relatório do cliente', tsMob11Tests);
   group('TS-MOB-12 — Relatório do prestador', tsMob12Tests);
   group('TS-MOB-13 — Alterar a palavra-passe', tsMob13Tests);
