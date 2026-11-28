@@ -45,6 +45,16 @@ class ServiceStatusChangeSummary {
     required this.changedByRole,
   });
 
+  factory ServiceStatusChangeSummary.fromJson(Map<String, dynamic> json) =>
+      ServiceStatusChangeSummary(
+        previousStatus: ServiceStatus.fromJson(
+          json['previousStatus'] as String,
+        ),
+        newStatus: ServiceStatus.fromJson(json['newStatus'] as String),
+        changedAt: json['changedAt'] as String,
+        changedByRole: Role.fromJson(json['changedByRole'] as String),
+      );
+
   final ServiceStatus previousStatus;
   final ServiceStatus newStatus;
   final String changedAt;

@@ -31,4 +31,40 @@ void main() {
     expect(radius('dez'), 'fora');
     expect(radius(' 25 '), isNull);
   });
+
+  group('valor da proposta', () {
+    final validate = amount();
+    const tooLow = 'O valor tem de ser maior que 0.';
+    const tooHigh = 'O valor não pode ser superior a 100 000,00 €.';
+    const format = 'Indique um valor com, no máximo, duas casas decimais.';
+
+    test('tem de ser maior que 0', () {
+      expect(validate('0'), tooLow);
+      expect(validate('0,00'), tooLow);
+      expect(validate('0,01'), isNull);
+    });
+
+    test('pode ir até 100 000,00, com o limite incluído', () {
+      expect(validate('100000'), isNull);
+      expect(validate('100000,00'), isNull);
+      expect(validate('100000,01'), tooHigh);
+      expect(validate('250000'), tooHigh);
+    });
+
+    test('aceita a vírgula e o ponto, com até duas casas decimais', () {
+      expect(validate('80,00'), isNull);
+      expect(validate('80.5'), isNull);
+      expect(validate(' 80 '), isNull);
+      expect(validate('80,005'), format);
+      expect(validate('-5'), format);
+      expect(validate('oitenta'), format);
+      expect(validate(''), format);
+    });
+
+    test('converte o texto para número', () {
+      expect(parseAmount('80,50'), 80.5);
+      expect(parseAmount('100000.00'), 100000);
+      expect(parseAmount('abc'), isNull);
+    });
+  });
 }
