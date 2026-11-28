@@ -17,7 +17,7 @@ enum ProposalStatus {
       values.firstWhere((s) => s.apiValue == value);
 }
 
-/// Corpo da apresentação de uma proposta (E25).
+/// Corpo da apresentação de uma proposta.
 class ProposalInput {
   const ProposalInput({
     required this.amount,

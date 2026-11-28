@@ -19,8 +19,9 @@ import 'package:localhub/widgets/ui/messages.dart';
 
 import 'direct_request_header.dart';
 
-/// Detalhe de uma solicitação direta recebida, onde o Prestador apresenta a
-/// proposta ou recusa a solicitação (M21). Não permite cancelar o serviço.
+/// Detalhe de uma solicitação direta recebida: o serviço e o histórico e,
+/// enquanto estiver pendente, a proposta ou a recusa. Depois de respondida,
+/// leva à proposta apresentada. Não permite cancelar o serviço.
 class DirectRequestDetailScreen extends ConsumerStatefulWidget {
   const DirectRequestDetailScreen({super.key, required this.directRequestId});
 
@@ -112,8 +113,9 @@ class _DirectRequestDetailScreenState
                 ),
               ),
         data: (data) {
-          // O backend só aceita a resposta a uma solicitação pendente de um
-          // serviço que ainda está aberto
+          // A solicitação pode estar pendente com o serviço já atribuído a outro
+          // Prestador ou cancelado. Aí o backend recusaria a proposta, por isso
+          // só se mostra o formulário com o serviço aberto
           final canRespond =
               data.status == DirectRequestStatus.pending &&
               data.service.status == ServiceStatus.open;

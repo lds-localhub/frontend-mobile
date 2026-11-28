@@ -5,7 +5,7 @@ import 'package:localhub/models/proposal.dart';
 
 import 'direct_requests.dart';
 
-/// Apresenta a proposta do Prestador a um serviço (E25) e atualiza as
+/// Apresenta a proposta do Prestador a um serviço e atualiza as
 /// solicitações diretas, que passam a «Proposta apresentada».
 Future<void> submitProposal(
   WidgetRef ref, {

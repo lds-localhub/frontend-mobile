@@ -30,8 +30,8 @@ Future<Map<String, dynamic>> _post(
       : jsonDecode(response.body) as Map<String, dynamic>;
 }
 
-/// E20: serviço do [client] com uma solicitação direta ao [provider]; sem
-/// [title], o título é único.
+/// Cria pela API um serviço do [client] com uma solicitação direta ao
+/// [provider]; sem [title], o título é único.
 Future<int> createDirectRequestService(
   TestAccount client,
   TestProvider provider, {

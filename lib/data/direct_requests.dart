@@ -7,7 +7,7 @@ import 'package:localhub/models/page.dart';
 import 'app_lifecycle.dart';
 
 /// Solicitações diretas recebidas pelo Prestador, da mais recente para a mais
-/// antiga, com o filtro de estado e a página (E23).
+/// antiga, com o filtro de estado e a página.
 final directRequestsProvider = FutureProvider.autoDispose
     .family<Page<DirectRequestItem>, DirectRequestsParams>((ref, params) async {
       ref.watch(appResumedProvider);
@@ -22,7 +22,7 @@ final directRequestsProvider = FutureProvider.autoDispose
       );
     });
 
-/// Detalhe de uma solicitação direta do Prestador (E36).
+/// Detalhe de uma solicitação direta do Prestador.
 final directRequestProvider = FutureProvider.autoDispose
     .family<DirectRequestDetail, int>((ref, directRequestId) async {
       ref.watch(appResumedProvider);
@@ -30,7 +30,7 @@ final directRequestProvider = FutureProvider.autoDispose
       return DirectRequestDetail.fromJson(json! as Map<String, dynamic>);
     });
 
-/// Recusa uma solicitação direta (E24) e atualiza as solicitações (listas e
+/// Recusa uma solicitação direta e atualiza as solicitações (listas e
 /// detalhe).
 Future<void> declineDirectRequest(
   WidgetRef ref, {

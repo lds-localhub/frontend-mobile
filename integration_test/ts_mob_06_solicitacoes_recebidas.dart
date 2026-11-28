@@ -14,7 +14,7 @@ Finder _statusInCard(String title, String status) => find.descendant(
   matching: find.text(status),
 );
 
-/// Abre o detalhe (M21) da solicitação com o título [title] e desliza até ao
+/// Abre o detalhe da solicitação com o título [title] e desliza até ao
 /// formulário da proposta.
 Future<void> _openDetail(WidgetTester tester, String title) async {
   await tapText(tester, title);
@@ -24,11 +24,11 @@ Future<void> _openDetail(WidgetTester tester, String title) async {
   await scrollToText(tester, 'Apresentar proposta');
 }
 
-/// TS-MOB-06 — Responder a solicitações diretas (RF-F007-09, RF-F007-01,
-/// RF-F007-02; RNF-08).
+/// TS-MOB-06 — Responder a solicitações diretas
 void tsMob06Tests() {
-  testWidgets('apresenta uma proposta e recusa uma solicitação (RF-F007-09, '
-      'RF-F007-01, RF-F007-02, RNF-08)', (tester) async {
+  testWidgets('apresenta uma proposta e recusa uma solicitação', (
+    tester,
+  ) async {
     final provider = await createProviderWithProfile();
     final client = await registerAndLogin('CLIENT');
     final firstTitle = 'Reparar torneira ${uniqueId()}';

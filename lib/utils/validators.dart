@@ -26,8 +26,8 @@ Validator intRange(int min, int max, String message) => (value) {
   return (number == null || number < min || number > max) ? message : null;
 };
 
-/// Valor em euros (E25): maior que 0, até 100 000,00 e com, no máximo, duas
-/// casas decimais; aceita a vírgula.
+/// Valor em euros de uma proposta: maior que 0, até 100 000,00 e com, no
+/// máximo, duas casas decimais; aceita a vírgula.
 Validator amount() => (value) {
   final text = (value ?? '').trim();
   if (!RegExp(r'^\d+([.,]\d{1,2})?$').hasMatch(text)) {

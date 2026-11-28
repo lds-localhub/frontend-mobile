@@ -14,8 +14,8 @@ import 'package:localhub/widgets/ui/loading_view.dart';
 
 import 'direct_request_list_card.dart';
 
-/// Solicitações diretas recebidas pelo Prestador, com o filtro de estado
-/// (M20).
+/// Todas as solicitações diretas recebidas pelo Prestador, com o filtro do
+/// estado.
 class DirectRequestsScreen extends ConsumerStatefulWidget {
   const DirectRequestsScreen({super.key});
 

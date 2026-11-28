@@ -19,11 +19,11 @@ enum DirectRequestStatus {
       values.firstWhere((s) => s.apiValue == value);
 }
 
-/// Parâmetros da lista das solicitações diretas do Prestador (E23); sem
+/// Parâmetros da lista das solicitações diretas do Prestador; sem
 /// [status], todas.
 typedef DirectRequestsParams = ({DirectRequestStatus? status, int page});
 
-/// Resumo do serviço de uma solicitação na lista (E23).
+/// Resumo do serviço de uma solicitação na lista.
 class DirectRequestServiceRef {
   const DirectRequestServiceRef({
     required this.serviceId,
@@ -54,7 +54,7 @@ class DirectRequestServiceRef {
   final String clientName;
 }
 
-/// Solicitação direta na lista do Prestador (E23).
+/// Solicitação direta na lista do Prestador.
 class DirectRequestItem {
   const DirectRequestItem({
     required this.directRequestId,
@@ -79,7 +79,7 @@ class DirectRequestItem {
   final DirectRequestServiceRef service;
 }
 
-/// Serviço de uma solicitação, no detalhe do Prestador (E36), sem os
+/// Serviço de uma solicitação, no detalhe do Prestador, sem os
 /// contactos do Cliente.
 class DirectRequestServiceDetail {
   const DirectRequestServiceDetail({
@@ -134,7 +134,7 @@ class DirectRequestServiceDetail {
   final List<ServiceStatusChangeSummary> history;
 }
 
-/// Detalhe de uma solicitação direta do Prestador (E36).
+/// Detalhe de uma solicitação direta do Prestador.
 class DirectRequestDetail {
   const DirectRequestDetail({
     required this.directRequestId,
